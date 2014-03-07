@@ -9,33 +9,34 @@ StopwatchViewer needs Qt4 to build. Simply include Stopwatch.h in whatever code 
 
 ```cpp
 #include <string>
+#include <stdio.h>
 #include "Stopwatch.h"
 
 int main(int argc, char *argv[])
 {
   //This stops duplicate timings on multiple runs
   Stopwatch::getInstance().setCustomSignature(32434);
-  
+
   STOPWATCH("Timing1", 
-  
-  if(argc > 2)
+
+  if(argc >= 1)
   {
-    somethingDifficult();
+    sleep(1);
   }
-  
+
   );
-  
-  
+
+
   TICK("Timing2");
-  
+
   while(argc > 0)
   {
-    doSomething();
+    sleep(2);
     argc--;
   }
-  
+
   TOCK("Timing2");
-  
+
   Stopwatch::getInstance().sendAll();
 }
 ```
