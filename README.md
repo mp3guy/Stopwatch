@@ -44,3 +44,5 @@ int main(int argc, char *argv[])
 Then just watch the stats in StopwatchViewer. 
 
 Uses some code from the B-Human code release (http://www.b-human.de/). 
+
+![Stopwatch](http://mp3guy.github.io/img/Stopwatch.png)
