@@ -45,4 +45,6 @@ Then just watch the stats in StopwatchViewer.
 
 Uses some code from the B-Human code release (http://www.b-human.de/). 
 
-![Stopwatch](http://mp3guy.github.io/img/Stopwatch.png)
+<p align="center">
+  <img src="http://mp3guy.github.io/img/Stopwatch.png" alt="Stopwatch"/>
+</p>
