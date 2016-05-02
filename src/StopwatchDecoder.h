@@ -16,7 +16,7 @@
 class StopwatchDecoder
 {
     public:
-        static std::pair<unsigned long long int, std::vector<std::pair<std::string, float> > > decodePacket(unsigned char * data, int size)
+        static std::pair<unsigned long long int, std::vector<std::pair<std::string, float> > > decodePacket(const unsigned char * data, int size)
         {
             const char * stringData = (const char *)&data[sizeof(int) + sizeof(unsigned long long int)];
 

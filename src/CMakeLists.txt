@@ -14,12 +14,22 @@ qt4_wrap_cpp(view_moc_srcs
              stopwatchviewer.h
             )
 
+set(CURSES_NEED_NCURSES TRUE)
+find_package(Curses QUIET)
+
+if (CURSES_FOUND)
+  add_definitions(-DHAVE_NCURSES)
+  include_directories(${CURSES_INCLUDE_DIR})
+endif()
+
 add_executable(StopwatchViewer 
   main.cpp
   ${view_moc_srcs}
   ${view_UIS_H}
   dataPlotWidget.h
   dataPlotWidget.cpp
+  ncurses_ui.h
+  ncurses_ui.cpp
   plotHolderWidget.h
   plotHolderWidget.cpp
   stopwatchviewer.cpp
@@ -30,4 +40,4 @@ add_executable(StopwatchViewer
 
 target_link_libraries(StopwatchViewer 
                       ${QT_LIBRARIES} 
-                      ${QT_QTNETWORK_LIBRARY})
+                      ${QT_QTNETWORK_LIBRARY} ${CURSES_LIBRARIES})
