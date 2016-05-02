@@ -181,7 +181,9 @@ class Stopwatch
 
             for(std::map<std::string, float>::const_iterator it = timings.begin(); it != timings.end(); it++)
             {
-                valuePointer = (float *)mempcpy(valuePointer, it->first.c_str(), it->first.length() + 1);
+                memcpy(valuePointer, it->first.c_str(), it->first.length() + 1);
+                valuePointer = (float *)((unsigned char *)valuePointer +
+                  it->first.length() + 1);
                 *valuePointer++ = it->second;
             }
 
