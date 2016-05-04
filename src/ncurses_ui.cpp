@@ -59,7 +59,6 @@ public:
     }
 
     struct sockaddr_in saddr = {0};
-    saddr.sin_len = sizeof(saddr);
     saddr.sin_family = AF_INET;
     saddr.sin_port = htons(port);
     saddr.sin_addr.s_addr = inet_addr("127.0.0.1");
