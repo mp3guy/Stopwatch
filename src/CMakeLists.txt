@@ -41,3 +41,7 @@ add_executable(StopwatchViewer
 target_link_libraries(StopwatchViewer 
                       ${QT_LIBRARIES} 
                       ${QT_QTNETWORK_LIBRARY} ${CURSES_LIBRARIES})
+
+install(TARGETS StopwatchViewer
+        RUNTIME DESTINATION bin)
+install(FILES Stopwatch.h DESTINATION include)
