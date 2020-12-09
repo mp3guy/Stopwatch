@@ -1,8 +1,8 @@
 #ifndef STOPWATCHVIEWER_H
 #define STOPWATCHVIEWER_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QCheckBox>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
 #include <QtNetwork/QUdpSocket>
 #include <iostream>
 #include <map>
@@ -12,7 +12,7 @@
 #include "RingBuffer.h"
 #include "StopwatchDecoder.h"
 #include "plotHolderWidget.h"
-#include "../build/ui_stopwatchviewer.h"
+#include "ui_stopwatchviewer.h"
 
 using namespace std;
 
