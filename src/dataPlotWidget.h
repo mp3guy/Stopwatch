@@ -29,19 +29,22 @@ class DataPlotWidget : public QWidget
         void resetPlot();
         void setDataLength(int length);
 
+        int PLOT_WIDTH = 640;
+        int PLOT_HEIGHT = 240;
+
         static const int DEFAULT_DATA_LENGTH = 100;
         static const int NUM_PLOTS = 4;
-        static const int PLOT_WIDTH = 640;
-        static const int PLOT_HEIGHT = 240;
         static const int PEN_WIDTH = 1;
         static const int PEN_HIGHLIGHT_WIDTH = 2;
+
     private:
         QPainter painter;
 
         void paintEvent(QPaintEvent * event);
         int getPlotY(float val, float dataMin, float dataMax);
         void drawDataPlot();
-        
+        void resizeEvent(QResizeEvent *event) override;
+
         int lastLimit;
         int dataLength;
         float ** dataArray;

@@ -1,11 +1,12 @@
 #include <QPainter>
 #include <QApplication>
+#include <QResizeEvent>
 #include "dataPlotWidget.h"
 
 DataPlotWidget::DataPlotWidget(QWidget * parent)
  : QWidget(parent)
 {
-    setFixedSize(PLOT_WIDTH, PLOT_HEIGHT);
+    setMinimumSize(PLOT_WIDTH, PLOT_HEIGHT);
 
     currentCount = 0;
     currentIndex = 0;
@@ -135,7 +136,7 @@ void DataPlotWidget::drawDataPlot()
 
     }
 
-    painter.drawText(5, 12, "Max: " + QString::number(dataMax));
+    painter.drawText(5, 24, "Max: " + QString::number(dataMax));
     painter.drawText(5, PLOT_HEIGHT - 2, "Min: " + QString::number(dataMin));
 
     QTransform trans(1, 0, 0, 0, -1, 0, 0, 0, 1);
@@ -182,8 +183,6 @@ void DataPlotWidget::drawDataPlot()
 
 void DataPlotWidget::resetPlot()
 {
-    setFixedSize(PLOT_WIDTH, PLOT_HEIGHT);
-
     currentCount = 0;
     currentIndex = 0;
 
@@ -215,4 +214,10 @@ void DataPlotWidget::setDataLength(int length)
     }
 
     resetPlot();
+}
+
+void DataPlotWidget::resizeEvent(QResizeEvent *event)
+{
+    PLOT_WIDTH = event->size().width();
+    PLOT_HEIGHT = event->size().height();
 }

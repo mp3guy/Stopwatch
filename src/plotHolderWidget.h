@@ -29,7 +29,7 @@ class PlotHolderWidget : public QWidget
     public:
         PlotHolderWidget(QWidget * parent = 0);
         void update(float * values, bool * enabled);
-        
+
         DataPlotWidget * dataPlotWidget;
         QSlider * plotLength;
         QLabel * currentDataLength;
@@ -37,7 +37,6 @@ class PlotHolderWidget : public QWidget
         QVBoxLayout * mainLayout;
         QVBoxLayout * plotLayout;
         QHBoxLayout * lengthLayout;
-        QHBoxLayout * buttonLayout;
 
     public slots:
         void resetPlot();
