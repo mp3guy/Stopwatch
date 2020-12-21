@@ -7,30 +7,27 @@
 PlotHolderWidget::PlotHolderWidget(QWidget *parent)
  : QWidget(parent)
 {
-    mainLayout = new QVBoxLayout;
-    setLayout(mainLayout);
     setWindowTitle("Plot Window");
 
-    dataPlotWidget = new DataPlotWidget();
+    mainLayout = new QVBoxLayout;
+    setLayout(mainLayout);
 
-    plotLayout = new QVBoxLayout;
-    buttonLayout = new QHBoxLayout;
-
-    currentDataLength = new QLabel;
-    currentDataLength->setText("Current Window Sample Length: " + QString::number(DataPlotWidget::DEFAULT_DATA_LENGTH));
+    resetButton = new QPushButton("Reset Plot", this);
+    mainLayout->addWidget(resetButton);
 
     plotLength = new QSlider;
     plotLength->setMinimum(50);
     plotLength->setMaximum(10000);
     plotLength->setOrientation(Qt::Horizontal);
-
-    mainLayout->addLayout(buttonLayout);
     mainLayout->addWidget(plotLength);
+
+    currentDataLength = new QLabel;
+    currentDataLength->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    currentDataLength->setText("Current Window Sample Length: " + QString::number(DataPlotWidget::DEFAULT_DATA_LENGTH));
     mainLayout->addWidget(currentDataLength);
 
-    resetButton = new QPushButton("Reset Plot", this);
-    buttonLayout->addWidget(resetButton);
-
+    plotLayout = new QVBoxLayout;
+    dataPlotWidget = new DataPlotWidget();
     plotLayout->addWidget(dataPlotWidget);
     mainLayout->addLayout(plotLayout);
 
