@@ -179,6 +179,14 @@ void StopwatchViewer::updateTable()
         }
     }
 
+    ui.tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui.tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui.tableWidget->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui.tableWidget->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    ui.tableWidget->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
+    ui.tableWidget->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
+    ui.tableWidget->horizontalHeader()->setSectionResizeMode(6, QHeaderView::ResizeToContents);
+
     bool enabled[DataPlotWidget::NUM_PLOTS] = {plotVals.size() > 0 ? true : false,
                                                plotVals.size() > 1 ? true : false,
                                                plotVals.size() > 2 ? true : false,
