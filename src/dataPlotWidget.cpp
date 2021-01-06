@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QResizeEvent>
 #include "dataPlotWidget.h"
+#include <cmath>
 
 DataPlotWidget::DataPlotWidget(QWidget * parent)
  : QWidget(parent)
@@ -14,9 +15,14 @@ DataPlotWidget::DataPlotWidget(QWidget * parent)
 
     dataArray = new float * [NUM_PLOTS];
 
+    static constexpr float golden_ratio = 0.5 * (1 + std::sqrt(5));
+
     for(int i = 0; i < NUM_PLOTS; i++)
     {
         dataArray[i] = new float[dataLength];
+
+        // colour distance by golden ratio
+        colours[i] = QColor::fromHsvF( std::fmod(i * golden_ratio, 1), 1, 1);
 
         for(int j = 0; j < dataLength; j++)
         {
@@ -149,28 +155,7 @@ void DataPlotWidget::drawDataPlot()
         {
             for(int k = 0; k < lastLimit; k++)
             {
-                if(i == currentIndex - 1)
-                {
-                    painter.setPen(QPen(QColor("red"), PEN_HIGHLIGHT_WIDTH));
-                }
-                else
-                {
-                    switch(k)
-                    {
-                        case 0:
-                            painter.setPen(QPen(QColor("green"), PEN_WIDTH));
-                            break;
-                        case 1:
-                            painter.setPen(QPen(QColor("blue"), PEN_WIDTH));
-                            break;
-                        case 2:
-                            painter.setPen(QPen(QColor("orange"), PEN_WIDTH));
-                            break;
-                        case 3:
-                            painter.setPen(QPen(QColor("white"), PEN_WIDTH));
-                            break;
-                    }
-                }
+                painter.setPen(QPen(colours[k], PEN_WIDTH));
 
                 painter.drawLine((int) (((float) PLOT_WIDTH / (float) dataLength) * (i - 1)),
                                          getPlotY(dataArray[k][i - 1], dataMin, dataMax),

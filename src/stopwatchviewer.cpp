@@ -54,7 +54,7 @@ void StopwatchViewer::checkboxHit()
             numChecked++;
         }
 
-        if(numChecked == 4)
+        if(numChecked == DataPlotWidget::NUM_PLOTS)
         {
             for(int j = 0; j < ui.tableWidget->rowCount(); j++)
             {
@@ -69,7 +69,7 @@ void StopwatchViewer::checkboxHit()
         }
     }
 
-    if(numChecked < 4)
+    if(numChecked < DataPlotWidget::NUM_PLOTS)
     {
         for(int j = 0; j < ui.tableWidget->rowCount(); j++)
         {
@@ -173,12 +173,15 @@ void StopwatchViewer::updateTable()
     ui.tableWidget->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
     ui.tableWidget->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Stretch);
 
-    bool enabled[DataPlotWidget::NUM_PLOTS] = {plotVals.size() > 0 ? true : false,
-                                               plotVals.size() > 1 ? true : false,
-                                               plotVals.size() > 2 ? true : false,
-                                               plotVals.size() > 3 ? true : false};
+    bool enabled[DataPlotWidget::NUM_PLOTS];
 
-    float values[DataPlotWidget::NUM_PLOTS] = {0.0f, 0.0f, 0.0f, 0.0f};
+    for (size_t i = 0; i < DataPlotWidget::NUM_PLOTS; i++)
+    {
+        enabled[i] = plotVals.size() > i;
+    }
+
+
+    float values[DataPlotWidget::NUM_PLOTS] = {0};
 
     for(int i = 0; i < (int)plotVals.size() && i < DataPlotWidget::NUM_PLOTS; i++)
     {
