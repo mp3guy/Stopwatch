@@ -70,7 +70,6 @@ class StopwatchViewer : public QWidget
         int lastRow;
 
         void updateTable();
-        void resizeEvent(QResizeEvent * resize);
 
     private slots:
         void processPendingDatagram();
