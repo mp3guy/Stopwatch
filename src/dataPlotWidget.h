@@ -33,12 +33,13 @@ class DataPlotWidget : public QWidget
         int PLOT_HEIGHT = 240;
 
         static const int DEFAULT_DATA_LENGTH = 100;
-        static const int NUM_PLOTS = 4;
+        static const int NUM_PLOTS = 10;
         static const int PEN_WIDTH = 1;
         static const int PEN_HIGHLIGHT_WIDTH = 2;
 
     private:
         QPainter painter;
+        std::array<QColor, NUM_PLOTS> colours;
 
         void paintEvent(QPaintEvent * event);
         int getPlotY(float val, float dataMin, float dataMax);
