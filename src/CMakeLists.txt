@@ -3,16 +3,13 @@ project(StopwatchViewer)
 
 find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
 
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 
 set(CURSES_NEED_NCURSES TRUE)
-find_package(Curses QUIET)
+find_package(Curses)
 
-if (CURSES_FOUND)
-  add_definitions(-DHAVE_NCURSES)
-  include_directories(${CURSES_INCLUDE_DIR})
-endif()
+add_definitions(-DHAVE_NCURSES)
+include_directories(${CURSES_INCLUDE_DIR})
 
 add_executable(StopwatchViewer
   main.cpp

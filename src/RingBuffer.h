@@ -8,8 +8,7 @@
  * ===> from B-Human
  */
 
-#ifndef __RingBuffer_h_
-#define __RingBuffer_h_
+#pragma once
 
 #define DEFAULT_RINGBUFFER_SIZE 30
 
@@ -154,5 +153,3 @@ class RingBuffer {
   C buffer[n];
   C sum;
 };
-
-#endif // __RingBuffer_h_

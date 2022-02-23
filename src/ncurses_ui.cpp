@@ -68,7 +68,7 @@ class Server {
 
   typedef RingBuffer<float, DEFAULT_RINGBUFFER_SIZE> TimingRingBuffer;
   typedef std::map<std::string, TimingRingBuffer> TimingMap;
-  typedef unsigned long long int StopwatchIdentifier;
+  typedef uint64_t StopwatchIdentifier;
   typedef std::map<StopwatchIdentifier, TimingMap> Stopwatches;
 
   int _socket;
@@ -81,11 +81,11 @@ class Server {
     }
 
     const int* data = reinterpret_cast<const int*>(buffer);
-    if (length != data[0]) {
+    if ((int)length != data[0]) {
       return;
     }
 
-    std::pair<unsigned long long int, std::vector<std::pair<std::string, float>>> currentTimes =
+    std::pair<uint64_t, std::vector<std::pair<std::string, float>>> currentTimes =
         StopwatchDecoder::decodePacket(reinterpret_cast<const unsigned char*>(buffer), length);
     std::map<std::string, RingBuffer<float, DEFAULT_RINGBUFFER_SIZE>>& stopwatch =
         _cache[currentTimes.first];
@@ -162,7 +162,7 @@ class Ui {
 
     std::sort(_lines.begin(), _lines.end());
 
-    if (_topLineIndex > _lines.size() - 1) {
+    if (_topLineIndex > (int)_lines.size() - 1) {
       _topLineIndex = _lines.size() - 1;
     }
 
@@ -197,7 +197,7 @@ class Ui {
     int output_line = 4;
     int input_line = _topLineIndex;
 
-    while (input_line < _lines.size()) {
+    while (input_line < (int)_lines.size()) {
       mvprintw(output_line, 0, _lines[input_line].c_str());
       output_line++;
       input_line++;

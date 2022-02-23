@@ -10,9 +10,6 @@ PlotHolderWidget::PlotHolderWidget(QWidget* parent) : QWidget(parent) {
   mainLayout = new QVBoxLayout;
   setLayout(mainLayout);
 
-  resetButton = new QPushButton("Reset Plot", this);
-  mainLayout->addWidget(resetButton);
-
   plotLength = new QSlider;
   plotLength->setMinimum(50);
   plotLength->setMaximum(10000);
@@ -22,7 +19,7 @@ PlotHolderWidget::PlotHolderWidget(QWidget* parent) : QWidget(parent) {
   currentDataLength = new QLabel;
   currentDataLength->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
   currentDataLength->setText(
-      "Current Window Sample Length: " + QString::number(DataPlotWidget::DEFAULT_DATA_LENGTH));
+      "Current Window Sample Length: " + QString::number(DataPlotWidget::kInitialPlotLength));
   mainLayout->addWidget(currentDataLength);
 
   plotLayout = new QVBoxLayout;
@@ -30,19 +27,18 @@ PlotHolderWidget::PlotHolderWidget(QWidget* parent) : QWidget(parent) {
   plotLayout->addWidget(dataPlotWidget);
   mainLayout->addLayout(plotLayout);
 
-  connect(resetButton, SIGNAL(clicked()), this, SLOT(resetPlot()));
   connect(plotLength, SIGNAL(valueChanged(int)), this, SLOT(changeDataLength(int)));
 }
 
-void PlotHolderWidget::update(float* values, bool* enabled) {
-  dataPlotWidget->updatePlot(values, enabled);
-}
-
-void PlotHolderWidget::resetPlot() {
-  dataPlotWidget->resetPlot();
+void PlotHolderWidget::update(const std::vector<std::pair<std::string, float>>& plotVals) {
+  dataPlotWidget->updatePlot(plotVals);
 }
 
 void PlotHolderWidget::changeDataLength(int len) {
   dataPlotWidget->setDataLength(len);
   currentDataLength->setText("Current Window Sample Length: " + QString::number(len));
+}
+
+void PlotHolderWidget::clear() {
+  dataPlotWidget->resetPlot();
 }

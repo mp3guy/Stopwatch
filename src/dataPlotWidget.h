@@ -2,8 +2,9 @@
  * @author fiachra & tom
  */
 
-#ifndef DATA_PLOT_WIDGET_H
-#define DATA_PLOT_WIDGET_H
+#pragma once
+
+#include <deque>
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -13,7 +14,6 @@
 #include <QSignalMapper>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <iostream>
 
 class QPaintEvent;
 
@@ -22,34 +22,28 @@ class DataPlotWidget : public QWidget {
 
  public:
   DataPlotWidget(QWidget* parent = 0);
-  virtual ~DataPlotWidget();
+  virtual ~DataPlotWidget() = default;
 
-  void updatePlot(float* value, bool* enabled);
+  void updatePlot(const std::vector<std::pair<std::string, float>>& plotVals);
+  void setDataLength(int newLength);
   void resetPlot();
-  void setDataLength(int length);
 
-  int PLOT_WIDTH = 640;
-  int PLOT_HEIGHT = 240;
+  int plotWidth = 640;
+  int plotHeight = 240;
 
-  static const int DEFAULT_DATA_LENGTH = 100;
-  static const int NUM_PLOTS = 10;
-  static const int PEN_WIDTH = 1;
-  static const int PEN_HIGHLIGHT_WIDTH = 2;
+  static constexpr int kInitialPlotLength = 100;
 
  private:
   QPainter painter;
-  std::array<QColor, NUM_PLOTS> colours;
 
   void paintEvent(QPaintEvent* event);
   int getPlotY(float val, float dataMin, float dataMax);
   void drawDataPlot();
   void resizeEvent(QResizeEvent* event) override;
 
-  int lastLimit;
-  int dataLength;
-  float** dataArray;
-  int currentCount;
-  int currentIndex;
+  int maxPlotLength = kInitialPlotLength;
+  int currentIndex = 0;
+  int currentCount = 0;
+  int colorCounter = 0;
+  std::map<std::string, std::pair<QColor, std::vector<float>>> dataArray;
 };
-
-#endif

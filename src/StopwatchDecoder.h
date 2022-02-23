@@ -5,8 +5,7 @@
  *      Author: thomas
  */
 
-#ifndef STOPWATCHDECODER_H_
-#define STOPWATCHDECODER_H_
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -15,14 +14,14 @@
 
 class StopwatchDecoder {
  public:
-  static std::pair<unsigned long long int, std::vector<std::pair<std::string, float>>> decodePacket(
+  static std::pair<uint64_t, std::vector<std::pair<std::string, float>>> decodePacket(
       const unsigned char* data,
       int size) {
-    const char* stringData = (const char*)&data[sizeof(int) + sizeof(unsigned long long int)];
+    const char* stringData = (const char*)&data[sizeof(int) + sizeof(uint64_t)];
 
-    int totalLength = sizeof(int) + sizeof(unsigned long long int);
+    int totalLength = sizeof(int) + sizeof(uint64_t);
 
-    std::pair<unsigned long long int, std::vector<std::pair<std::string, float>>> values;
+    std::pair<uint64_t, std::vector<std::pair<std::string, float>>> values;
 
     while (totalLength < size) {
       std::pair<std::string, float> nextTiming;
@@ -38,10 +37,8 @@ class StopwatchDecoder {
       values.second.push_back(nextTiming);
     }
 
-    values.first = *((unsigned long long int*)&data[sizeof(int)]);
+    values.first = *((uint64_t*)&data[sizeof(int)]);
 
     return values;
   }
 };
-
-#endif /* STOPWATCHDECODER_H_ */

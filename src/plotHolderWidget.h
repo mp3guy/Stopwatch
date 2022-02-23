@@ -2,8 +2,7 @@
  * @author fiachra & tom
  */
 
-#ifndef PLOT_HOLDER_WIDGET_H
-#define PLOT_HOLDER_WIDGET_H
+#pragma once
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -27,19 +26,16 @@ class PlotHolderWidget : public QWidget {
 
  public:
   PlotHolderWidget(QWidget* parent = 0);
-  void update(float* values, bool* enabled);
+  void update(const std::vector<std::pair<std::string, float>>& plotVals);
+  void clear();
 
   DataPlotWidget* dataPlotWidget;
   QSlider* plotLength;
   QLabel* currentDataLength;
-  QPushButton* resetButton;
   QVBoxLayout* mainLayout;
   QVBoxLayout* plotLayout;
   QHBoxLayout* lengthLayout;
 
  public slots:
-  void resetPlot();
   void changeDataLength(int len);
 };
-
-#endif

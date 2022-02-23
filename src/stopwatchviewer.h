@@ -1,20 +1,19 @@
-#ifndef STOPWATCHVIEWER_H
-#define STOPWATCHVIEWER_H
+#pragma once
 
-#include <assert.h>
-#include <QtNetwork/QUdpSocket>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QCheckBox>
 #include <iostream>
 #include <map>
+#include <unordered_set>
 #include <utility>
+
+#include <QApplication>
+#include <QCheckBox>
+#include <QKeyEvent>
+#include <QTableWidget>
+#include <QUdpSocket>
 
 #include "RingBuffer.h"
 #include "StopwatchDecoder.h"
 #include "plotHolderWidget.h"
-#include "ui_stopwatchviewer.h"
-
-using namespace std;
 
 class StopwatchViewer : public QWidget {
   Q_OBJECT
@@ -26,58 +25,46 @@ class StopwatchViewer : public QWidget {
  private:
   static const int NUM_FIELDS = 7;
 
-  Ui::StopwatchViewerClass ui;
-
-  QUdpSocket* mySocket;
+  QUdpSocket* udpSocket = nullptr;
 
   bool plotAverages;
 
   class TableRow {
    public:
-    TableRow() : row(0), tableItems(0), checkItem(0) {}
+    TableRow() {}
 
     virtual ~TableRow() {
-      if (tableItems != 0) {
-        delete[] tableItems;
-      }
-
-      if (checkItem != 0) {
-        delete checkItem;
-      }
+      delete[] tableItems;
+      delete checkItem;
     }
 
     inline bool isUninit() const {
       return tableItems == 0 || checkItem == 0;
     }
 
-    int row;
-    QTableWidgetItem* tableItems;
-    QCheckBox* checkItem;
+    int row = 0;
+    QTableWidgetItem* tableItems = nullptr;
+    QCheckBox* checkItem = nullptr;
   };
 
-  PlotHolderWidget* plotHolderWidget;
+  PlotHolderWidget* plotHolderWidget = nullptr;
+  QTableWidget* tableWidget = nullptr;
+  QComboBox* plotChoice = nullptr;
 
   std::map<
-      unsigned long long int,
+      uint64_t,
       std::map<std::string, std::pair<RingBuffer<float, DEFAULT_RINGBUFFER_SIZE>, TableRow>>>
       cache;
 
-  int lastRow;
+  int lastRow = 0;
 
   void updateTable();
+  void keyPressEvent(QKeyEvent* event) override;
+
+  std::unordered_set<std::string> enabledBeforeReset;
 
  private slots:
   void processPendingDatagram();
   void flushCache();
   void checkboxHit();
-
-  void plotClicked() {
-    if (plotHolderWidget->isVisible()) {
-      plotHolderWidget->hide();
-    } else {
-      plotHolderWidget->show();
-    }
-  }
 };
-
-#endif // STOPWATCHVIEWER_H
