@@ -1,2 +1,4 @@
 build/*
 .project
+src/CMakeLists.txt.user
+.clang-format
