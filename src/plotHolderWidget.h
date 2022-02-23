@@ -5,14 +5,14 @@
 #ifndef PLOT_HOLDER_WIDGET_H
 #define PLOT_HOLDER_WIDGET_H
 
-#include <QWidget>
-#include <QLabel>
-#include <QSlider>
 #include <QComboBox>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QSignalMapper>
+#include <QLabel>
 #include <QPushButton>
+#include <QSignalMapper>
+#include <QSlider>
+#include <QVBoxLayout>
+#include <QWidget>
 #include <iostream>
 #include <map>
 #include <string>
@@ -22,25 +22,24 @@
 
 class QPaintEvent;
 
-class PlotHolderWidget : public QWidget
-{
-    Q_OBJECT;
+class PlotHolderWidget : public QWidget {
+  Q_OBJECT;
 
-    public:
-        PlotHolderWidget(QWidget * parent = 0);
-        void update(float * values, bool * enabled);
+ public:
+  PlotHolderWidget(QWidget* parent = 0);
+  void update(float* values, bool* enabled);
 
-        DataPlotWidget * dataPlotWidget;
-        QSlider * plotLength;
-        QLabel * currentDataLength;
-        QPushButton * resetButton;
-        QVBoxLayout * mainLayout;
-        QVBoxLayout * plotLayout;
-        QHBoxLayout * lengthLayout;
+  DataPlotWidget* dataPlotWidget;
+  QSlider* plotLength;
+  QLabel* currentDataLength;
+  QPushButton* resetButton;
+  QVBoxLayout* mainLayout;
+  QVBoxLayout* plotLayout;
+  QHBoxLayout* lengthLayout;
 
-    public slots:
-        void resetPlot();
-        void changeDataLength(int len);
+ public slots:
+  void resetPlot();
+  void changeDataLength(int len);
 };
 
 #endif
