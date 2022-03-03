@@ -12,8 +12,8 @@ int main(int argc, char* argv[]) {
   bool useCurses = false;
   if (argc >= 2) {
     for (int i = 0; i < argc; ++i) {
-      std::string arg(argv[i]);
-      if (arg.compare("-n")) {
+      const std::string arg(argv[i]);
+      if (arg.compare("-n") == 0) {
         useCurses = true;
         break;
       }
