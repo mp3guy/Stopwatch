@@ -3,7 +3,7 @@ Stopwatch
 
 Easy to use simple benchmarking tool.
 
-Sends UDP packets to localhost, which StopwatchViewer receives and displays stats on, including plots (credit to [Fiachra Matthews](http://www.linkedin.com/pub/fiachra-matthews/17/48b/a12) here). 
+Sends UDP packets to localhost, which StopwatchViewer receives and displays stats on, including plots (credit to [Fiachra Matthews](http://www.linkedin.com/pub/fiachra-matthews/17/48b/a12) here).
 
 StopwatchViewer needs Qt4 to build. Simply include Stopwatch.h in whatever code you want to benchmark and use as such;
 
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
   //This stops duplicate timings on multiple runs
   Stopwatch::getInstance().setCustomSignature(32434);
 
-  STOPWATCH("Timing1", 
+  STOPWATCH("Timing1",
 
   if(argc >= 1)
   {
@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
 }
 ```
 
-Then just watch the stats in StopwatchViewer. 
+Then just watch the stats in StopwatchViewer.
 
-Uses some code from the B-Human code release (http://www.b-human.de/). 
+Uses some code from the B-Human code release (http://www.b-human.de/).
 
 <p align="center">
   <img src="http://mp3guy.github.io/img/Stopwatch.png" alt="Stopwatch"/>
