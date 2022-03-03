@@ -5,7 +5,7 @@ Easy to use simple benchmarking tool.
 
 Sends UDP packets to localhost, which StopwatchViewer receives and displays stats on, including plots (credit to [Fiachra Matthews](http://www.linkedin.com/pub/fiachra-matthews/17/48b/a12) here).
 
-StopwatchViewer needs Qt4 to build. Simply include Stopwatch.h in whatever code you want to benchmark and use as such;
+StopwatchViewer needs Qt5 to build. Simply include Stopwatch.h in whatever code you want to benchmark and use as such;
 
 ```cpp
 #include <string>
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 }
 ```
 
-Then just watch the stats in StopwatchViewer.
+Then just watch the stats in StopwatchViewer GUI or in the ncurses UI (`StopwatchViewer -n`).
 
 Uses some code from the B-Human code release (http://www.b-human.de/).
 
