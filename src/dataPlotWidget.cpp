@@ -115,7 +115,10 @@ void DataPlotWidget::drawDataPlot() {
     painter.setPen(QPen(data.second.first, 1));
 
     painter.resetTransform();
-    painter.drawText(5, lastDrawnHeight, QString::fromStdString(data.first));
+    painter.drawText(
+        5,
+        lastDrawnHeight,
+        QString::fromStdString(data.first) + ": " + QString::number(data.second.second.back()));
     lastDrawnHeight += textHeight;
 
     painter.setTransform(inverted);
@@ -140,7 +143,7 @@ void DataPlotWidget::resetPlot() {
 
 void DataPlotWidget::setDataLength(int newLength) {
   for (auto& data : dataArray) {
-    if (data.second.second.size() > newLength) {
+    if ((int)data.second.second.size() > newLength) {
       const int shrinkAmount = data.second.second.size() - newLength;
       // Shrink buffer by removing oldest data at the start
       data.second.second.erase(
