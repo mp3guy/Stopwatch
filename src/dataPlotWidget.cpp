@@ -104,9 +104,12 @@ void DataPlotWidget::drawDataPlot() {
 
   int lastDrawnHeight = 18;
   const int textHeight = 24;
-  painter.drawText(5, lastDrawnHeight, "Max: " + QString::number(dataMax));
-  painter.drawText(5, plotHeight - 5, "Min: " + QString::number(dataMin));
-  lastDrawnHeight += textHeight;
+
+  if (dataMin != std::numeric_limits<float>::max() && dataMax != 0.0f) {
+    painter.drawText(5, plotHeight - 5, "Min: " + QString::number(dataMin));
+    painter.drawText(5, lastDrawnHeight, "Max: " + QString::number(dataMax));
+    lastDrawnHeight += textHeight;
+  }
 
   QTransform inverted(1, 0, 0, 0, -1, 0, 0, 0, 1);
   inverted.translate(0, -plotHeight);
@@ -114,12 +117,7 @@ void DataPlotWidget::drawDataPlot() {
   for (const auto& data : dataArray) {
     painter.setPen(QPen(data.second.first, 1));
 
-    painter.resetTransform();
-    painter.drawText(
-        5,
-        lastDrawnHeight,
-        QString::fromStdString(data.first) + ": " + QString::number(data.second.second.back()));
-    lastDrawnHeight += textHeight;
+    float latestValue = std::numeric_limits<float>::quiet_NaN();
 
     painter.setTransform(inverted);
     for (int i = 1; i < currentCount; i++) {
@@ -129,7 +127,17 @@ void DataPlotWidget::drawDataPlot() {
             getPlotY(data.second.second[i - 1], dataMin, dataMax),
             (int)(((float)plotWidth / (float)maxPlotLength) * (i)),
             getPlotY(data.second.second[i], dataMin, dataMax));
+        latestValue = data.second.second[i];
       }
+    }
+
+    if (std::isfinite(latestValue)) {
+      painter.resetTransform();
+      painter.drawText(
+          5,
+          lastDrawnHeight,
+          QString::fromStdString(data.first) + ": " + QString::number(latestValue));
+      lastDrawnHeight += textHeight;
     }
   }
 }
