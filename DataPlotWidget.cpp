@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-#include "dataPlotWidget.h"
+#include "DataPlotWidget.h"
 
 DataPlotWidget::DataPlotWidget(QWidget* parent) : QWidget(parent) {
   setMinimumSize(plotWidth, plotHeight);

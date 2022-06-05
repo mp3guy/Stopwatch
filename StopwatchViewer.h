@@ -11,17 +11,18 @@
 #include <QTableWidget>
 #include <QUdpSocket>
 
+#include "PlotHolderWidget.h"
 #include "RingBuffer.h"
-#include "plotHolderWidget.h"
 
 class StopwatchViewer : public QWidget {
   Q_OBJECT
 
  public:
-  StopwatchViewer(QWidget* parent = 0);
+  StopwatchViewer(const bool cli);
   ~StopwatchViewer();
 
  private:
+  const bool cli_ = false;
   QUdpSocket* udpSocket = nullptr;
 
   bool plotAverages;

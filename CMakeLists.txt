@@ -10,16 +10,12 @@ include_directories(${CPP_TERMINAL_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 
+file(GLOB sources *.cpp)
+file(GLOB headers *.h)
+
 add_executable(StopwatchViewer
-  main.cpp
-  dataPlotWidget.h
-  dataPlotWidget.cpp
-  plotHolderWidget.h
-  plotHolderWidget.cpp
-  stopwatchviewer.cpp
-  stopwatchviewer.h
-  RingBuffer.h
-  StopwatchDecoder.h
+  ${sources}
+  ${headers}
 )
 
 target_link_libraries(StopwatchViewer Qt6::Widgets Qt6::Network ${CPP_TERMINAL_LIBRARIES})

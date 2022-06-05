@@ -2,7 +2,7 @@
  * @author Fiachra & Tom
  */
 
-#include "plotHolderWidget.h"
+#include "PlotHolderWidget.h"
 
 PlotHolderWidget::PlotHolderWidget(QWidget* parent) : QWidget(parent) {
   setWindowTitle("Plot Window");

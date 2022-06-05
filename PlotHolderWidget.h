@@ -16,7 +16,7 @@
 #include <map>
 #include <string>
 
-#include "dataPlotWidget.h"
+#include "DataPlotWidget.h"
 
 class QPaintEvent;
 

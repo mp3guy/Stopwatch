@@ -2,9 +2,9 @@
 #include <QSplitter>
 
 #include "StopwatchDecoder.h"
-#include "stopwatchviewer.h"
+#include "StopwatchViewer.h"
 
-StopwatchViewer::StopwatchViewer(QWidget* parent) : QWidget(parent) {
+StopwatchViewer::StopwatchViewer(const bool cli) : cli_(cli) {
   this->resize(1024, 768);
   this->setWindowTitle("StopwatchViewer");
   this->setObjectName("StopwatchViewerUi");
@@ -76,10 +76,6 @@ StopwatchViewer::StopwatchViewer(QWidget* parent) : QWidget(parent) {
 
 StopwatchViewer::~StopwatchViewer() {
   udpSocket->close();
-
-  delete plotHolderWidget;
-
-  delete udpSocket;
 }
 
 void StopwatchViewer::checkboxHit() {
