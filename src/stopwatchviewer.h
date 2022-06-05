@@ -12,7 +12,6 @@
 #include <QUdpSocket>
 
 #include "RingBuffer.h"
-#include "StopwatchDecoder.h"
 #include "plotHolderWidget.h"
 
 class StopwatchViewer : public QWidget {
@@ -23,8 +22,6 @@ class StopwatchViewer : public QWidget {
   ~StopwatchViewer();
 
  private:
-  static const int NUM_FIELDS = 7;
-
   QUdpSocket* udpSocket = nullptr;
 
   bool plotAverages;

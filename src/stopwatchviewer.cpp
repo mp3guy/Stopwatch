@@ -1,6 +1,7 @@
 #include <QHeaderView>
 #include <QSplitter>
 
+#include "StopwatchDecoder.h"
 #include "stopwatchviewer.h"
 
 StopwatchViewer::StopwatchViewer(QWidget* parent) : QWidget(parent) {
@@ -42,8 +43,6 @@ StopwatchViewer::StopwatchViewer(QWidget* parent) : QWidget(parent) {
   udpSocket->bind(45454, QUdpSocket::ShareAddress);
   connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagram()));
 
-  tableWidget->setColumnCount(NUM_FIELDS);
-
   QStringList columnTitles;
   columnTitles << "Item"
                << "Plot"
@@ -53,10 +52,17 @@ StopwatchViewer::StopwatchViewer(QWidget* parent) : QWidget(parent) {
                << "Avg (ms)"
                << "Hz";
 
-  assert(columnTitles.length() == NUM_FIELDS);
-
+  tableWidget->setColumnCount(columnTitles.length());
   tableWidget->setHorizontalHeaderLabels(columnTitles);
   tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+  tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+  tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  tableWidget->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+  tableWidget->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+  tableWidget->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
+  tableWidget->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
+  tableWidget->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Stretch);
 
   columnTitles.removeFirst();
   columnTitles.removeFirst();
@@ -154,7 +160,7 @@ void StopwatchViewer::updateTable() {
 
       if (newEntry.isUninit()) {
         newEntry.row = lastRow++;
-        newEntry.tableItems = new QTableWidgetItem[NUM_FIELDS - 1];
+        newEntry.tableItems = new QTableWidgetItem[tableWidget->columnCount() - 1];
         newEntry.tableItems[0].setText(QString::fromStdString(it->first));
         newEntry.tableItems[1].setText(QString::number(it->second.first[0]));
         newEntry.tableItems[2].setText(QString::number(it->second.first.getMinimum()));
@@ -196,14 +202,6 @@ void StopwatchViewer::updateTable() {
       }
     }
   }
-
-  tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-  tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-  tableWidget->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-  tableWidget->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-  tableWidget->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
-  tableWidget->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
-  tableWidget->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Stretch);
 
   plotHolderWidget->update(plotVals);
 }

@@ -1,22 +1,14 @@
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 3.2)
 project(StopwatchViewer)
 
-find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Network REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
-
-set(CURSES_NEED_NCURSES TRUE)
-find_package(Curses)
-
-add_definitions(-DHAVE_NCURSES)
-include_directories(${CURSES_INCLUDE_DIR})
 
 add_executable(StopwatchViewer
   main.cpp
   dataPlotWidget.h
   dataPlotWidget.cpp
-  ncurses_ui.h
-  ncurses_ui.cpp
   plotHolderWidget.h
   plotHolderWidget.cpp
   stopwatchviewer.cpp
@@ -25,7 +17,13 @@ add_executable(StopwatchViewer
   StopwatchDecoder.h
 )
 
-target_link_libraries(StopwatchViewer ${CURSES_LIBRARIES} Qt5::Widgets Qt5::Network)
+target_link_libraries(StopwatchViewer Qt6::Widgets Qt6::Network)
+
+target_compile_options(StopwatchViewer PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
 
 install(TARGETS StopwatchViewer
         RUNTIME DESTINATION bin)

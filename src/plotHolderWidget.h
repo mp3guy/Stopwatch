@@ -16,7 +16,6 @@
 #include <map>
 #include <string>
 
-#include "RingBuffer.h"
 #include "dataPlotWidget.h"
 
 class QPaintEvent;

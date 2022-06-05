@@ -36,7 +36,7 @@ class DataPlotWidget : public QWidget {
  private:
   QPainter painter;
 
-  void paintEvent(QPaintEvent* event);
+  void paintEvent(QPaintEvent* event) override;
   int getPlotY(float val, float dataMin, float dataMax);
   void drawDataPlot();
   void resizeEvent(QResizeEvent* event) override;
