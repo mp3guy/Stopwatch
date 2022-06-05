@@ -21,6 +21,10 @@ int main(int argc, char* argv[]) {
 
   QApplication a(argc, argv);
   StopwatchViewer w(useTerminal);
-  w.show();
+
+  if (!useTerminal) {
+    w.show();
+  }
+
   return a.exec();
 }

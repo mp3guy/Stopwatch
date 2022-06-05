@@ -13,9 +13,16 @@ set(CMAKE_AUTOMOC ON)
 file(GLOB sources *.cpp)
 file(GLOB headers *.h)
 
+list(FILTER sources EXCLUDE REGEX ".*Test\\.cpp$")
+
 add_executable(StopwatchViewer
   ${sources}
   ${headers}
+)
+
+add_executable(Test
+  Test.cpp
+  Stopwatch.h
 )
 
 target_link_libraries(StopwatchViewer Qt6::Widgets Qt6::Network ${CPP_TERMINAL_LIBRARIES})

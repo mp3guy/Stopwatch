@@ -2,7 +2,7 @@
 
 #include "TerminalViewer.h"
 
-TerminalViewer::TerminalViewer() : terminal_(true, true, false, true) {
+TerminalViewer::TerminalViewer() : terminal_(true, true, true, true) {
   if (!Term::is_stdin_a_tty()) {
     std::cout << "The terminal is not attached to a TTY and therefore "
                  "can't catch user input. Who knows what happens now?"
@@ -36,11 +36,5 @@ void TerminalViewer::renderUpdate() {
     }
   }
 
-  int y = menuY0 + menuHeight + 5;
-  window_->print_str(1, y, "Selected item: " + std::to_string(menuPos));
-  window_->print_str(1, y + 1, "Menu width: " + std::to_string(menuWidth));
-  window_->print_str(1, y + 2, "Menu height: " + std::to_string(menuHeight));
-  window_->print_str(1, y + 3, "Unicode test: Ondřej Čertík, ἐξήκοι");
-
-  window_->render(1, 1, true);
+  std::cout << window_->render(1, 1, true) << std::flush;
 }
