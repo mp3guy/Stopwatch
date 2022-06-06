@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <cpp-terminal/private/conversion.hpp>
+
 #include "TerminalViewer.h"
 
 TerminalViewer::TerminalViewer() : terminal_(true, true, true, true) {
@@ -48,11 +50,52 @@ bool TerminalViewer::renderUpdate() {
     }
   }
 
+  const std::u32string leftT = Term::Private::utf8_to_utf32("├");
+  const std::u32string rightT = Term::Private::utf8_to_utf32("┤");
+  const std::u32string upT = Term::Private::utf8_to_utf32("┴");
+  const std::u32string downT = Term::Private::utf8_to_utf32("┬");
+  const std::u32string vertical = Term::Private::utf8_to_utf32("│");
+  const std::u32string horizontal = Term::Private::utf8_to_utf32("─");
+
+  // Print title
+  const std::string title = "StopwatchViewer";
+  if (cols_ >= (int)title.length()) {
+    window_->print_str(cols_ / 2 - title.length() / 2 + 1, 1, title);
+  }
+
+  auto drawHorizontalLine = [&](const int row) {
+    window_->set_char(1, row, leftT[0]);
+    for (int x = 2; x < cols_; x++) {
+      window_->set_char(x, row, horizontal[0]);
+    }
+    window_->set_char(cols_, row, rightT[0]);
+  };
+
+  drawHorizontalLine(2);
+  drawHorizontalLine(4);
+
+  constexpr int kNumColumns = 6;
+
+  if (cols_ >= 13) {
+    const int gapBetweenColumns = cols_ / kNumColumns;
+
+    auto drawCharEveryNth = [&](const int row, const auto character) {
+      for (int column = 0; column < kNumColumns - 1; column++) {
+        window_->set_char(gapBetweenColumns * (column + 1) + 1, row, character);
+      }
+    };
+
+    drawCharEveryNth(3, vertical[0]);
+    drawCharEveryNth(2, downT[0]);
+    drawCharEveryNth(4, upT[0]);
+  }
+
   std::cout << window_->render(1, 1, true) << std::flush;
 
-  const int key = Term::read_key();
+  const int key = Term::read_key0();
 
   switch (key) {
+    case 'q':
     case Term::Key::ESC:
     case Term::Key::CTRL + 'c':
       return false;
