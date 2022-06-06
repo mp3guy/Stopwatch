@@ -56,6 +56,7 @@ bool TerminalViewer::renderUpdate() {
   const std::u32string downT = Term::Private::utf8_to_utf32("┬");
   const std::u32string vertical = Term::Private::utf8_to_utf32("│");
   const std::u32string horizontal = Term::Private::utf8_to_utf32("─");
+  const std::u32string cross = Term::Private::utf8_to_utf32("┼");
 
   // Print title
   const std::string title = "StopwatchViewer";
@@ -85,9 +86,15 @@ bool TerminalViewer::renderUpdate() {
       }
     };
 
-    drawCharEveryNth(3, vertical[0]);
     drawCharEveryNth(2, downT[0]);
-    drawCharEveryNth(4, upT[0]);
+    drawCharEveryNth(3, vertical[0]);
+    drawCharEveryNth(4, cross[0]);
+
+    for (int row = 5; row < rows_; row++) {
+      drawCharEveryNth(row, vertical[0]);
+    }
+
+    drawCharEveryNth(rows_, upT[0]);
   }
 
   std::cout << window_->render(1, 1, true) << std::flush;
