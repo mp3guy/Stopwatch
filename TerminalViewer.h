@@ -8,7 +8,7 @@ class TerminalViewer {
  public:
   TerminalViewer();
 
-  void renderUpdate();
+  bool renderUpdate();
 
  private:
   Term::Terminal terminal_;

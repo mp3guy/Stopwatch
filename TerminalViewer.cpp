@@ -13,12 +13,24 @@ TerminalViewer::TerminalViewer() : terminal_(true, true, true, true) {
   window_ = std::make_unique<Term::Window>(cols_, rows_);
 }
 
-void TerminalViewer::renderUpdate() {
+bool TerminalViewer::renderUpdate() {
+  window_->clear();
+
+  int currRows, currCols = 0;
+  Term::get_term_size(currRows, currCols);
+
+  if (currCols != cols_ || currRows != rows_) {
+    cols_ = currCols;
+    rows_ = currRows;
+    window_ = std::make_unique<Term::Window>(cols_, rows_);
+  }
+
+  window_->print_border(true);
+
   int menuHeight = 10;
   int menuWidth = 10;
   int menuPos = 5;
 
-  window_->clear();
   int menuX0 = (cols_ - menuWidth) / 2 + 1;
   int menuY0 = (rows_ - menuHeight) / 2 + 1;
   window_->print_rect(menuX0, menuY0, menuX0 + menuWidth + 1, menuY0 + menuHeight + 1);
@@ -37,4 +49,15 @@ void TerminalViewer::renderUpdate() {
   }
 
   std::cout << window_->render(1, 1, true) << std::flush;
+
+  const int key = Term::read_key();
+
+  switch (key) {
+    case Term::Key::ESC:
+    case Term::Key::CTRL + 'c':
+      return false;
+      break;
+  }
+
+  return true;
 }

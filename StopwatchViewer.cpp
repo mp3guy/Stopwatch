@@ -227,8 +227,9 @@ void StopwatchViewer::updateTable() {
 
   plotHolderWidget_->update(plotVals);
 
-  if (terminalViewer_) {
-    terminalViewer_->renderUpdate();
+  if (terminalViewer_ && !terminalViewer_->renderUpdate()) {
+    terminalViewer_.reset();
+    this->close();
   }
 }
 
