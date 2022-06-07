@@ -15,7 +15,10 @@ TerminalViewer::TerminalViewer() : terminal_(true, true, true, true) {
   window_ = std::make_unique<Term::Window>(cols_, rows_);
 }
 
-bool TerminalViewer::renderUpdate() {
+bool TerminalViewer::renderUpdate(
+    const std::map<
+        uint64_t,
+        std::map<std::string, std::pair<RingBuffer<float>, StopwatchViewer::TableRow>>>& cache) {
   window_->clear();
 
   int currRows, currCols = 0;
@@ -36,6 +39,9 @@ bool TerminalViewer::renderUpdate() {
   const std::u32string vertical = Term::Private::utf8_to_utf32("│");
   const std::u32string horizontal = Term::Private::utf8_to_utf32("─");
   const std::u32string cross = Term::Private::utf8_to_utf32("┼");
+  const std::u32string upArrow = Term::Private::utf8_to_utf32("↑");
+  const std::u32string downArrow = Term::Private::utf8_to_utf32("↓");
+  const std::u32string upDownArrow = Term::Private::utf8_to_utf32("⇅");
 
   // Print title
   const std::string title = "StopwatchViewer";
@@ -52,6 +58,8 @@ bool TerminalViewer::renderUpdate() {
   };
 
   constexpr int kNumColumns = 6;
+  bool firstRowVisible = false;
+  bool lastRowVisible = false;
 
   if (cols_ >= 13 && rows_ >= 4) {
     drawHorizontalLine(2);
@@ -77,15 +85,58 @@ bool TerminalViewer::renderUpdate() {
     drawCharEveryNth(rows_, upT[0]);
 
     // Draw the headers
-    constexpr std::array<std::string_view, 6> headers = {
+    const std::array<std::string, 6> headers = {
         "Item", "Last (ms)", "Min (ms)", "Max (ms)", "Avg (ms)", "Hz"};
 
-    for (size_t i = 0; i < headers.size(); i++) {
-      const int startingX = gapBetweenColumns * i + 2;
-      for (int c = 0; c < (int)headers[i].length() && c < gapBetweenColumns - 1; c++) {
-        window_->set_char(
-            startingX + c, 3, Term::Private::utf8_to_utf32(std::string(1, headers[i][c]))[0]);
+    auto drawStringsInColumns = [&](const std::array<std::string, 6>& strings, const int row) {
+      for (size_t i = 0; i < strings.size(); i++) {
+        const int startingX = gapBetweenColumns * i + 2;
+        for (int c = 0; c < (int)strings[i].length() && c < gapBetweenColumns - 1; c++) {
+          window_->set_char(
+              startingX + c, row, Term::Private::utf8_to_utf32(std::string(1, strings[i][c]))[0]);
+        }
       }
+    };
+
+    drawStringsInColumns(headers, 3);
+
+    // Populate the timing strings
+    std::vector<std::array<std::string, 6>> timings;
+
+    for (const auto& [signature, stopwatch] : cache) {
+      for (const auto& [name, measurements] : stopwatch) {
+        auto& timing = timings.emplace_back();
+        timing[0] = name;
+        timing[1] = QString::number(measurements.first[0]).toStdString();
+        timing[2] = QString::number(measurements.first.getMinimum()).toStdString();
+        timing[3] = QString::number(measurements.first.getMaximum()).toStdString();
+        timing[4] = QString::number(measurements.first.getAverage()).toStdString();
+        timing[5] = QString::number(measurements.first.getReciprocal() * 1000.0).toStdString();
+      }
+    }
+
+    for (int row = 5, timingIdx = scroll_; row < rows_ && timingIdx < (int)timings.size();
+         row++, timingIdx++) {
+      if (timingIdx == 0) {
+        firstRowVisible = true;
+      }
+
+      if (timingIdx == (int)timings.size() - 1) {
+        lastRowVisible = true;
+      }
+
+      drawStringsInColumns(timings[timingIdx], row);
+    }
+
+    if (!firstRowVisible && !lastRowVisible) {
+      window_->set_char(cols_ - 1, rows_, upDownArrow[0]);
+      window_->set_char(cols_, rows_, Term::Private::utf8_to_utf32(std::string(1, ' '))[0]);
+    } else if (!firstRowVisible) {
+      window_->set_char(cols_ - 1, rows_, upArrow[0]);
+      window_->set_char(cols_, rows_, Term::Private::utf8_to_utf32(std::string(1, ' '))[0]);
+    } else if (!lastRowVisible) {
+      window_->set_char(cols_ - 1, rows_, downArrow[0]);
+      window_->set_char(cols_, rows_, Term::Private::utf8_to_utf32(std::string(1, ' '))[0]);
     }
   }
 
@@ -94,6 +145,14 @@ bool TerminalViewer::renderUpdate() {
   const int key = Term::read_key0();
 
   switch (key) {
+    case Term::Key::ARROW_UP:
+      if (!firstRowVisible)
+        scroll_--;
+      break;
+    case Term::Key::ARROW_DOWN:
+      if (!lastRowVisible)
+        scroll_++;
+      break;
     case 'q':
     case Term::Key::ESC:
     case Term::Key::CTRL + 'c':

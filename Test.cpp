@@ -14,6 +14,14 @@ int main(int, char**) {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     TOCK("Timing2");
 
+    for (size_t i = 3; i < 10; i++) {
+      Stopwatch::getInstance().tick(
+          "Timing" + std::to_string(i), Stopwatch::getCurrentSystemTime());
+      std::this_thread::sleep_for(std::chrono::milliseconds(i));
+      Stopwatch::getInstance().tock(
+          "Timing" + std::to_string(i), Stopwatch::getCurrentSystemTime());
+    }
+
     Stopwatch::getInstance().sendAll();
   }
 }

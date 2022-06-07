@@ -10,14 +10,12 @@
 
 #pragma once
 
-#define DEFAULT_RINGBUFFER_SIZE 30
-
 /**
  * @class RingBuffer
  *
  * template class for cyclic buffering of the last n values of Type V
  */
-template <class C, int n>
+template <class C, int n = 30>
 class RingBuffer {
  public:
   /** Constructor */

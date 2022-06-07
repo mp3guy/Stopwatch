@@ -121,8 +121,7 @@ void StopwatchViewer::processPendingDatagram() {
     std::pair<uint64_t, std::vector<std::pair<std::string, float>>> currentTimes =
         StopwatchDecoder::decodePacket((unsigned char*)datagram.data(), datagram.size());
 
-    std::map<std::string, std::pair<RingBuffer<float, DEFAULT_RINGBUFFER_SIZE>, TableRow>>&
-        stopwatch = cache_[currentTimes.first];
+    auto& stopwatch = cache_[currentTimes.first];
 
     for (unsigned int i = 0; i < currentTimes.second.size(); i++) {
       stopwatch[currentTimes.second.at(i).first].first.add(currentTimes.second.at(i).second);
@@ -135,12 +134,7 @@ void StopwatchViewer::processPendingDatagram() {
 void StopwatchViewer::updateTable() {
   int currentNumTimers = 0;
 
-  for (std::map<
-           uint64_t,
-           std::map<std::string, std::pair<RingBuffer<float, DEFAULT_RINGBUFFER_SIZE>, TableRow>>>::
-           const_iterator it = cache_.begin();
-       it != cache_.end();
-       it++) {
+  for (auto it = cache_.begin(); it != cache_.end(); it++) {
     currentNumTimers += it->second.size();
   }
 
@@ -148,19 +142,10 @@ void StopwatchViewer::updateTable() {
 
   std::vector<std::pair<std::string, float>> plotVals;
 
-  for (std::map<
-           uint64_t,
-           std::map<std::string, std::pair<RingBuffer<float, DEFAULT_RINGBUFFER_SIZE>, TableRow>>>::
-           const_iterator it = cache_.begin();
-       it != cache_.end();
-       it++) {
-    const std::map<std::string, std::pair<RingBuffer<float, DEFAULT_RINGBUFFER_SIZE>, TableRow>>&
-        stopwatch = it->second;
+  for (auto it = cache_.begin(); it != cache_.end(); it++) {
+    const auto& stopwatch = it->second;
 
-    for (std::map<std::string, std::pair<RingBuffer<float, DEFAULT_RINGBUFFER_SIZE>, TableRow>>::
-             const_iterator it = stopwatch.begin();
-         it != stopwatch.end();
-         it++) {
+    for (auto it = stopwatch.begin(); it != stopwatch.end(); it++) {
       TableRow& newEntry = const_cast<TableRow&>(it->second.second);
 
       if (newEntry.isUninit()) {
@@ -227,7 +212,7 @@ void StopwatchViewer::updateTable() {
 
   plotHolderWidget_->update(plotVals);
 
-  if (terminalViewer_ && !terminalViewer_->renderUpdate()) {
+  if (terminalViewer_ && !terminalViewer_->renderUpdate(cache_)) {
     terminalViewer_.reset();
     this->close();
   }

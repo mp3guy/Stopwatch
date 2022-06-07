@@ -23,11 +23,6 @@ class StopwatchViewer : public QWidget {
   StopwatchViewer(const bool cli);
   ~StopwatchViewer();
 
- private:
-  QUdpSocket* udpSocket_ = nullptr;
-  bool plotAverages_ = false;
-  std::unique_ptr<TerminalViewer> terminalViewer_;
-
   class TableRow {
    public:
     TableRow() {}
@@ -49,14 +44,16 @@ class StopwatchViewer : public QWidget {
     QHBoxLayout* layoutCheckBox = nullptr;
   };
 
+ private:
+  QUdpSocket* udpSocket_ = nullptr;
+  bool plotAverages_ = false;
+  std::unique_ptr<TerminalViewer> terminalViewer_;
+
   PlotHolderWidget* plotHolderWidget_ = nullptr;
   QTableWidget* tableWidget_ = nullptr;
   QComboBox* plotChoice_ = nullptr;
 
-  std::map<
-      uint64_t,
-      std::map<std::string, std::pair<RingBuffer<float, DEFAULT_RINGBUFFER_SIZE>, TableRow>>>
-      cache_;
+  std::map<uint64_t, std::map<std::string, std::pair<RingBuffer<float>, TableRow>>> cache_;
 
   int lastRow_ = 0;
 
