@@ -41,10 +41,14 @@ int main(int argc, char *argv[])
 }
 ```
 
-Then just watch the stats in StopwatchViewer GUI.
+Then just watch the stats in StopwatchViewer GUI. Pass in the "-c" flag to use the CLI instead of Qt GUI. 
 
 Uses some code from the B-Human code release (http://www.b-human.de/).
 
 <p align="center">
-  <img src="http://mp3guy.github.io/img/Stopwatch.png" alt="Stopwatch"/>
+  <img src="https://github.com/mp3guy/mp3guy.github.io/raw/master/img/Stopwatch.png" alt="Stopwatch"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/mp3guy/mp3guy.github.io/raw/master/img/StopwatchCLI.png" alt="StopwatchCLI"/>
 </p>
