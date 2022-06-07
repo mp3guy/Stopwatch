@@ -29,27 +29,6 @@ bool TerminalViewer::renderUpdate() {
 
   window_->print_border(true);
 
-  int menuHeight = 10;
-  int menuWidth = 10;
-  int menuPos = 5;
-
-  int menuX0 = (cols_ - menuWidth) / 2 + 1;
-  int menuY0 = (rows_ - menuHeight) / 2 + 1;
-  window_->print_rect(menuX0, menuY0, menuX0 + menuWidth + 1, menuY0 + menuHeight + 1);
-
-  for (int i = 1; i <= menuHeight; i++) {
-    std::string s = std::to_string(i) + ": item";
-    window_->print_str(menuX0 + 1, menuY0 + i, s);
-    if (i == menuPos) {
-      window_->fill_fg(menuX0 + 1, menuY0 + i, menuX0 + s.size(), menuY0 + i, Term::fg::red);
-      window_->fill_bg(menuX0 + 1, menuY0 + i, menuX0 + menuWidth, menuY0 + i, Term::bg::gray);
-      window_->fill_style(menuX0 + 1, menuY0 + i, menuX0 + s.size(), menuY0 + i, Term::style::bold);
-    } else {
-      window_->fill_fg(menuX0 + 1, menuY0 + i, menuX0 + s.size(), menuY0 + i, Term::fg::blue);
-      window_->fill_bg(menuX0 + 1, menuY0 + i, menuX0 + menuWidth, menuY0 + i, Term::bg::green);
-    }
-  }
-
   const std::u32string leftT = Term::Private::utf8_to_utf32("├");
   const std::u32string rightT = Term::Private::utf8_to_utf32("┤");
   const std::u32string upT = Term::Private::utf8_to_utf32("┴");
@@ -72,12 +51,12 @@ bool TerminalViewer::renderUpdate() {
     window_->set_char(cols_, row, rightT[0]);
   };
 
-  drawHorizontalLine(2);
-  drawHorizontalLine(4);
-
   constexpr int kNumColumns = 6;
 
-  if (cols_ >= 13) {
+  if (cols_ >= 13 && rows_ >= 4) {
+    drawHorizontalLine(2);
+    drawHorizontalLine(4);
+
     const int gapBetweenColumns = cols_ / kNumColumns;
 
     auto drawCharEveryNth = [&](const int row, const auto character) {
@@ -86,6 +65,7 @@ bool TerminalViewer::renderUpdate() {
       }
     };
 
+    // Draw the boundaries
     drawCharEveryNth(2, downT[0]);
     drawCharEveryNth(3, vertical[0]);
     drawCharEveryNth(4, cross[0]);
@@ -95,6 +75,18 @@ bool TerminalViewer::renderUpdate() {
     }
 
     drawCharEveryNth(rows_, upT[0]);
+
+    // Draw the headers
+    constexpr std::array<std::string_view, 6> headers = {
+        "Item", "Last (ms)", "Min (ms)", "Max (ms)", "Avg (ms)", "Hz"};
+
+    for (size_t i = 0; i < headers.size(); i++) {
+      const int startingX = gapBetweenColumns * i + 2;
+      for (int c = 0; c < (int)headers[i].length() && c < gapBetweenColumns - 1; c++) {
+        window_->set_char(
+            startingX + c, 3, Term::Private::utf8_to_utf32(std::string(1, headers[i][c]))[0]);
+      }
+    }
   }
 
   std::cout << window_->render(1, 1, true) << std::flush;
