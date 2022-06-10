@@ -66,4 +66,5 @@ class StopwatchViewer : public QWidget {
   void processPendingDatagram();
   void flushCache();
   void checkboxHit();
+  void updateTerminal();
 };

@@ -1,5 +1,6 @@
 #include <QHeaderView>
 #include <QSplitter>
+#include <QTimer>
 
 #include "StopwatchDecoder.h"
 #include "StopwatchViewer.h"
@@ -77,11 +78,21 @@ StopwatchViewer::StopwatchViewer(const bool cli) {
 
   if (cli) {
     terminalViewer_ = std::make_unique<TerminalViewer>();
+    QTimer* timer = new QTimer;
+    timer->start(10);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateTerminal()));
   }
 }
 
 StopwatchViewer::~StopwatchViewer() {
   udpSocket_->close();
+}
+
+void StopwatchViewer::updateTerminal() {
+  if (terminalViewer_ && !terminalViewer_->renderUpdate(cache_)) {
+    terminalViewer_.reset();
+    QApplication::quit();
+  }
 }
 
 void StopwatchViewer::checkboxHit() {
@@ -106,7 +117,7 @@ void StopwatchViewer::checkboxHit() {
 
 void StopwatchViewer::keyPressEvent(QKeyEvent* event) {
   if (event->key() == Qt::Key_Escape) {
-    this->close();
+    QApplication::quit();
   }
 }
 
@@ -211,11 +222,6 @@ void StopwatchViewer::updateTable() {
   }
 
   plotHolderWidget_->update(plotVals);
-
-  if (terminalViewer_ && !terminalViewer_->renderUpdate(cache_)) {
-    terminalViewer_.reset();
-    this->close();
-  }
 }
 
 void StopwatchViewer::flushCache() {
