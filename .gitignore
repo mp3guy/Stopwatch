@@ -1,3 +1,5 @@
+.cache/*
 build/*
 .project
 CMakeLists.txt.user
+compile_commands.json

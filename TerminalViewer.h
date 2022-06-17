@@ -12,7 +12,7 @@ class TerminalViewer {
  public:
   TerminalViewer();
 
-  bool renderUpdate(
+  std::pair<bool, bool> renderUpdate(
       const std::map<
           uint64_t,
           std::map<std::string, std::pair<RingBuffer<float>, StopwatchViewer::TableRow>>>& cache);

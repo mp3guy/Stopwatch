@@ -89,9 +89,14 @@ StopwatchViewer::~StopwatchViewer() {
 }
 
 void StopwatchViewer::updateTerminal() {
-  if (terminalViewer_ && !terminalViewer_->renderUpdate(cache_)) {
-    terminalViewer_.reset();
-    QApplication::quit();
+  if (terminalViewer_) {
+    const auto [keepRunning, shouldFlush] = terminalViewer_->renderUpdate(cache_);
+    if (!keepRunning) {
+      terminalViewer_.reset();
+      QApplication::quit();
+    } else if (shouldFlush) {
+      flushCache();
+    }
   }
 }
 

@@ -15,7 +15,7 @@ TerminalViewer::TerminalViewer() : terminal_(true, true, true, true) {
   window_ = std::make_unique<Term::Window>(cols_, rows_);
 }
 
-bool TerminalViewer::renderUpdate(
+std::pair<bool, bool> TerminalViewer::renderUpdate(
     const std::map<
         uint64_t,
         std::map<std::string, std::pair<RingBuffer<float>, StopwatchViewer::TableRow>>>& cache) {
@@ -144,21 +144,29 @@ bool TerminalViewer::renderUpdate(
 
   const int key = Term::read_key0();
 
+  bool keepRunning = true;
+  bool flushCache = false;
+
   switch (key) {
+    case 'k':
     case Term::Key::ARROW_UP:
       if (!firstRowVisible)
         scroll_--;
       break;
+    case 'j':
     case Term::Key::ARROW_DOWN:
       if (!lastRowVisible)
         scroll_++;
       break;
+    case 'c':
+      flushCache = true;
+      break;
     case 'q':
     case Term::Key::ESC:
     case Term::Key::CTRL + 'c':
-      return false;
+      keepRunning = false;
       break;
   }
 
-  return true;
+  return std::make_pair(keepRunning, flushCache);
 }
