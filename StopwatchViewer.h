@@ -53,7 +53,9 @@ class StopwatchViewer : public QWidget {
   QTableWidget* tableWidget_ = nullptr;
   QComboBox* plotChoice_ = nullptr;
 
-  std::map<uint64_t, std::map<std::string, std::pair<RingBuffer<float>, TableRow>>> cache_;
+  std::map<uint64_t, std::map<std::string, std::pair<RingBuffer<float>, TableRow>>>
+      signatureToNameToDurations_;
+  std::map<uint64_t, std::map<std::string, uint64_t>> signatureToNameToTicksUs_;
 
   int lastRow_ = 0;
 

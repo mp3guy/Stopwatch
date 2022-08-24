@@ -22,6 +22,8 @@ int main(int, char**) {
           "Timing" + std::to_string(i), Stopwatch::getCurrentSystemTime());
     }
 
+    TOCK("Timing10");
+
     Stopwatch::getInstance().sendAll();
   }
 }

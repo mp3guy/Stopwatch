@@ -90,7 +90,8 @@ StopwatchViewer::~StopwatchViewer() {
 
 void StopwatchViewer::updateTerminal() {
   if (terminalViewer_) {
-    const auto [keepRunning, shouldFlush] = terminalViewer_->renderUpdate(cache_);
+    const auto [keepRunning, shouldFlush] =
+        terminalViewer_->renderUpdate(signatureToNameToDurations_);
     if (!keepRunning) {
       terminalViewer_.reset();
       QApplication::quit();
@@ -134,13 +135,15 @@ void StopwatchViewer::processPendingDatagram() {
   int* data = (int*)datagram.data();
 
   if (datagram.size() > 0 && datagram.size() == data[0]) {
-    std::pair<uint64_t, std::vector<std::pair<std::string, float>>> currentTimes =
-        StopwatchDecoder::decodePacket((unsigned char*)datagram.data(), datagram.size());
+    std::pair<uint64_t, std::vector<std::pair<std::string, float>>> signatureNameDurations =
+        StopwatchDecoder::decodePacket(
+            (uint8_t*)datagram.data(), datagram.size(), signatureToNameToTicksUs_);
 
-    auto& stopwatch = cache_[currentTimes.first];
+    auto& nameToDurations = signatureToNameToDurations_[signatureNameDurations.first];
 
-    for (unsigned int i = 0; i < currentTimes.second.size(); i++) {
-      stopwatch[currentTimes.second.at(i).first].first.add(currentTimes.second.at(i).second);
+    for (size_t i = 0; i < signatureNameDurations.second.size(); i++) {
+      nameToDurations[signatureNameDurations.second.at(i).first].first.add(
+          signatureNameDurations.second.at(i).second);
     }
 
     updateTable();
@@ -150,7 +153,8 @@ void StopwatchViewer::processPendingDatagram() {
 void StopwatchViewer::updateTable() {
   int currentNumTimers = 0;
 
-  for (auto it = cache_.begin(); it != cache_.end(); it++) {
+  for (auto it = signatureToNameToDurations_.begin(); it != signatureToNameToDurations_.end();
+       it++) {
     currentNumTimers += it->second.size();
   }
 
@@ -158,7 +162,8 @@ void StopwatchViewer::updateTable() {
 
   std::vector<std::pair<std::string, float>> plotVals;
 
-  for (auto it = cache_.begin(); it != cache_.end(); it++) {
+  for (auto it = signatureToNameToDurations_.begin(); it != signatureToNameToDurations_.end();
+       it++) {
     const auto& stopwatch = it->second;
 
     for (auto it = stopwatch.begin(); it != stopwatch.end(); it++) {
@@ -232,7 +237,7 @@ void StopwatchViewer::updateTable() {
 void StopwatchViewer::flushCache() {
   enabledBeforeReset_.clear();
 
-  for (auto& cacheIt : cache_) {
+  for (auto& cacheIt : signatureToNameToDurations_) {
     for (auto& stopIt : cacheIt.second) {
       if (stopIt.second.second.checkItem && stopIt.second.second.checkItem->isChecked()) {
         enabledBeforeReset_.insert(stopIt.first);
@@ -240,7 +245,8 @@ void StopwatchViewer::flushCache() {
     }
   }
 
-  cache_.clear();
+  signatureToNameToDurations_.clear();
+  signatureToNameToTicksUs_.clear();
   lastRow_ = 0;
   updateTable();
   plotHolderWidget_->clear();

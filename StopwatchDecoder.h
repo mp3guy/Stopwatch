@@ -8,6 +8,7 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -15,30 +16,71 @@
 class StopwatchDecoder {
  public:
   static std::pair<uint64_t, std::vector<std::pair<std::string, float>>> decodePacket(
-      const unsigned char* data,
-      int size) {
+      const uint8_t* data,
+      int totalLength,
+      std::map<uint64_t, std::map<std::string, uint64_t>>& signatureToNameToTicksUs) {
+    // Skip the first 4 bytes (int size of total packet) and next 8 bytes (signature for packet)
     const char* stringData = (const char*)&data[sizeof(int) + sizeof(uint64_t)];
 
-    int totalLength = sizeof(int) + sizeof(uint64_t);
+    const uint64_t signature = *((uint64_t*)&data[sizeof(int)]);
 
-    std::pair<uint64_t, std::vector<std::pair<std::string, float>>> values;
+    // Count what we've processed so far
+    int processedLength = sizeof(int) + sizeof(uint64_t);
 
-    while (totalLength < size) {
-      std::pair<std::string, float> nextTiming;
+    std::pair<uint64_t, std::vector<std::pair<std::string, float>>> signatureNameDurationsMs = {
+        signature, {}};
+    std::vector<std::pair<std::string, uint64_t>> nameTicksUs;
+    std::vector<std::pair<std::string, uint64_t>> nameTocksUs;
 
-      nextTiming.first = std::string(stringData);
-      stringData += nextTiming.first.length() + 1;
+    while (processedLength < totalLength) {
+      // Read the measurement type
+      const uint8_t type = *stringData++;
 
-      nextTiming.second = *((float*)stringData);
-      stringData += sizeof(float);
+      // Exploit the fact std::string will stop at the next null terminator
+      const std::string name(stringData);
+      stringData += name.length() + 1;
 
-      totalLength += nextTiming.first.length() + 1 + sizeof(float);
+      auto routeDatum = [&](auto& collection) {
+        using ValueType =
+            typename std::remove_reference_t<decltype(collection)>::value_type::second_type;
+        const ValueType value = *((ValueType*)stringData);
+        stringData += sizeof(ValueType);
+        processedLength += sizeof(uint8_t) + (name.length() + 1) + sizeof(ValueType);
+        collection.emplace_back(name, value);
+      };
 
-      values.second.push_back(nextTiming);
+      if (type == 0) {
+        routeDatum(signatureNameDurationsMs.second);
+      } else if (type == 1) {
+        routeDatum(nameTicksUs);
+      } else if (type == 2) {
+        routeDatum(nameTocksUs);
+      }
     }
 
-    values.first = *((uint64_t*)&data[sizeof(int)]);
+    // Store any ticks we received that we need to match against future tocks
+    for (const auto& [name, tickUs] : nameTicksUs) {
+      signatureToNameToTicksUs[signature][name] = tickUs;
+    }
 
-    return values;
+    // Try to match tocks from other process's ticks
+    for (const auto& [tockName, tockUs] : nameTocksUs) {
+      for (auto& [sig, nameToTicksUs] : signatureToNameToTicksUs) {
+        const auto matchingNameAndTickUs = nameToTicksUs.find(tockName);
+
+        if (matchingNameAndTickUs != nameToTicksUs.end()) {
+          const uint64_t tickUs = matchingNameAndTickUs->second;
+          nameToTicksUs.erase(matchingNameAndTickUs);
+
+          float durationMs = (float)(tockUs - tickUs) / 1000.0f;
+
+          if (durationMs > 0) {
+            signatureNameDurationsMs.second.emplace_back(tockName, durationMs);
+          }
+        }
+      }
+    }
+
+    return signatureNameDurationsMs;
   }
 };
