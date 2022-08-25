@@ -20,9 +20,10 @@ class StopwatchDecoder {
       int totalLength,
       std::map<uint64_t, std::map<std::string, uint64_t>>& signatureToNameToTicksUs) {
     // Skip the first 4 bytes (int size of total packet) and next 8 bytes (signature for packet)
-    const char* stringData = (const char*)&data[sizeof(int) + sizeof(uint64_t)];
+    const char* stringData = (const char*)(data + sizeof(int) + sizeof(uint64_t));
 
-    const uint64_t signature = *((uint64_t*)&data[sizeof(int)]);
+    uint64_t signature = 0;
+    memcpy(&signature, data + sizeof(int), sizeof(uint64_t));
 
     // Count what we've processed so far
     int processedLength = sizeof(int) + sizeof(uint64_t);
@@ -43,7 +44,8 @@ class StopwatchDecoder {
       auto routeDatum = [&](auto& collection) {
         using ValueType =
             typename std::remove_reference_t<decltype(collection)>::value_type::second_type;
-        const ValueType value = *((ValueType*)stringData);
+        ValueType value = {};
+        memcpy(&value, stringData, sizeof(ValueType));
         stringData += sizeof(ValueType);
         processedLength += sizeof(uint8_t) + (name.length() + 1) + sizeof(ValueType);
         collection.emplace_back(name, value);
