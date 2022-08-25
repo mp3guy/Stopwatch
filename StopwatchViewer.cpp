@@ -42,7 +42,14 @@ StopwatchViewer::StopwatchViewer(const bool cli) {
   this->setLayout(mainLayout);
 
   udpSocket_ = new QUdpSocket(this);
-  udpSocket_->bind(45454, QUdpSocket::ShareAddress);
+  const bool successfullyBoundPort = udpSocket_->bind(45454, QUdpSocket::DontShareAddress);
+
+  if (!successfullyBoundPort) {
+    std::cerr << "Unable to bind port " << 45454 << ", is there a Stopwatch viewer already running?"
+              << std::endl;
+    exit(-1);
+  }
+
   connect(udpSocket_, SIGNAL(readyRead()), this, SLOT(processPendingDatagram()));
 
   QStringList columnTitles;
