@@ -117,7 +117,6 @@ class Stopwatch {
 
     if (tickUs != ticksUs.end()) {
       const float duration = (float)(end - tickUs->second) / 1000.0f;
-      ticksUs.erase(name);
       if (duration > 0) {
         timingsMs[name] = duration;
       }
