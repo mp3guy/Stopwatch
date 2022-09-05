@@ -10,6 +10,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -28,6 +29,7 @@ class StopwatchDecoder {
     // Count what we've processed so far
     int processedLength = sizeof(int) + sizeof(uint64_t);
 
+    std::unordered_set<std::string> receivedDurations;
     std::pair<uint64_t, std::vector<std::pair<std::string, float>>> signatureNameDurationsMs = {
         signature, {}};
     std::vector<std::pair<std::string, uint64_t>> nameTicksUs;
@@ -53,6 +55,7 @@ class StopwatchDecoder {
 
       if (type == 0) {
         routeDatum(signatureNameDurationsMs.second);
+        receivedDurations.insert(name);
       } else if (type == 1) {
         routeDatum(nameTicksUs);
       } else if (type == 2) {
@@ -62,22 +65,26 @@ class StopwatchDecoder {
 
     // Store any ticks we received that we need to match against future tocks
     for (const auto& [name, tickUs] : nameTicksUs) {
-      signatureToNameToTicksUs[signature][name] = tickUs;
+      if (receivedDurations.count(name) == 0) {
+        signatureToNameToTicksUs[signature][name] = tickUs;
+      }
     }
 
     // Try to match tocks from other process's ticks
     for (const auto& [tockName, tockUs] : nameTocksUs) {
-      for (auto& [sig, nameToTicksUs] : signatureToNameToTicksUs) {
-        const auto matchingNameAndTickUs = nameToTicksUs.find(tockName);
+      if (receivedDurations.count(tockName) == 0) {
+        for (auto& [sig, nameToTicksUs] : signatureToNameToTicksUs) {
+          const auto matchingNameAndTickUs = nameToTicksUs.find(tockName);
 
-        if (matchingNameAndTickUs != nameToTicksUs.end()) {
-          const uint64_t tickUs = matchingNameAndTickUs->second;
-          nameToTicksUs.erase(matchingNameAndTickUs);
+          if (matchingNameAndTickUs != nameToTicksUs.end()) {
+            const uint64_t tickUs = matchingNameAndTickUs->second;
+            nameToTicksUs.erase(matchingNameAndTickUs);
 
-          float durationMs = (float)(tockUs - tickUs) / 1000.0f;
+            float durationMs = (float)(tockUs - tickUs) / 1000.0f;
 
-          if (durationMs > 0) {
-            signatureNameDurationsMs.second.emplace_back(tockName, durationMs);
+            if (durationMs > 0) {
+              signatureNameDurationsMs.second.emplace_back(tockName, durationMs);
+            }
           }
         }
       }
