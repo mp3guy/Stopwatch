@@ -6,25 +6,25 @@
 #include <QApplication>
 #include <QtGui>
 
-int main(int argc, char* argv[]) {
-  bool useTerminal = false;
-
-  if (argc >= 2) {
-    for (int i = 0; i < argc; ++i) {
-      const std::string arg(argv[i]);
-      if (arg == "-c") {
-        useTerminal = true;
-        break;
-      }
+QCoreApplication* createApplication(int& argc, char* argv[]) {
+  for (int i = 1; i < argc; ++i) {
+    if (!qstrcmp(argv[i], "-c")) {
+      return new QCoreApplication(argc, argv);
     }
   }
+  return new QApplication(argc, argv);
+}
 
-  QApplication a(argc, argv);
-  StopwatchViewer w(useTerminal);
+int main(int argc, char* argv[]) {
+  std::unique_ptr<StopwatchViewer> stopwatchViewer;
 
-  if (!useTerminal) {
-    w.show();
+  QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
+
+  if (qobject_cast<QApplication*>(app.data())) {
+    stopwatchViewer = std::make_unique<StopwatchViewer>(false);
+  } else {
+    stopwatchViewer = std::make_unique<StopwatchViewer>(true);
   }
 
-  return a.exec();
+  return app->exec();
 }

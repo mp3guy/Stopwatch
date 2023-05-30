@@ -6,16 +6,15 @@
 #include <cpp-terminal/input.hpp>
 #include <cpp-terminal/window.hpp>
 
-#include "StopwatchViewer.h"
+#include "ViewerWidget.h"
 
 class TerminalViewer {
  public:
   TerminalViewer();
 
   std::pair<bool, bool> renderUpdate(
-      const std::map<
-          uint64_t,
-          std::map<std::string, std::pair<RingBuffer<float>, StopwatchViewer::TableRow>>>& cache);
+      const std::map<uint64_t, std::map<std::string, std::pair<RingBuffer<float>, TableRow>>>&
+          cache);
 
  private:
   Term::Terminal terminal_;

@@ -16,9 +16,8 @@ TerminalViewer::TerminalViewer() : terminal_(true, true, true, true) {
 }
 
 std::pair<bool, bool> TerminalViewer::renderUpdate(
-    const std::map<
-        uint64_t,
-        std::map<std::string, std::pair<RingBuffer<float>, StopwatchViewer::TableRow>>>& cache) {
+    const std::map<uint64_t, std::map<std::string, std::pair<RingBuffer<float>, TableRow>>>&
+        cache) {
   window_->clear();
 
   int currRows, currCols = 0;
@@ -58,8 +57,8 @@ std::pair<bool, bool> TerminalViewer::renderUpdate(
   };
 
   constexpr int kNumColumns = 6;
-  bool firstRowVisible = false;
-  bool lastRowVisible = false;
+  bool firstRowVisible = cache.empty();
+  bool lastRowVisible = cache.empty();
 
   if (cols_ >= 13 && rows_ >= 4) {
     drawHorizontalLine(2);
