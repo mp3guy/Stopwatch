@@ -178,13 +178,17 @@ void StopwatchViewer::updateTable() {
 
       if (newEntry.isUninit()) {
         newEntry.row = lastRow_++;
-        newEntry.tableItems = new QTableWidgetItem[tableWidget_->columnCount() - 1];
-        newEntry.tableItems[0].setText(QString::fromStdString(it->first));
-        newEntry.tableItems[1].setText(QString::number(it->second.first[0]));
-        newEntry.tableItems[2].setText(QString::number(it->second.first.getMinimum()));
-        newEntry.tableItems[3].setText(QString::number(it->second.first.getMaximum()));
-        newEntry.tableItems[4].setText(QString::number(it->second.first.getAverage()));
-        newEntry.tableItems[5].setText(QString::number(it->second.first.getReciprocal() * 1000.0));
+
+        while ((int)newEntry.tableItems.size() < tableWidget_->columnCount() - 1) {
+          newEntry.tableItems.emplace_back(new QTableWidgetItem());
+        }
+
+        newEntry.tableItems[0]->setText(QString::fromStdString(it->first));
+        newEntry.tableItems[1]->setText(QString::number(it->second.first[0]));
+        newEntry.tableItems[2]->setText(QString::number(it->second.first.getMinimum()));
+        newEntry.tableItems[3]->setText(QString::number(it->second.first.getMaximum()));
+        newEntry.tableItems[4]->setText(QString::number(it->second.first.getAverage()));
+        newEntry.tableItems[5]->setText(QString::number(it->second.first.getReciprocal() * 1000.0));
 
         newEntry.checkBoxWidget = new QWidget();
         newEntry.checkItem = new QCheckBox();
@@ -199,13 +203,13 @@ void StopwatchViewer::updateTable() {
 
         connect(newEntry.checkItem, SIGNAL(stateChanged(int)), this, SLOT(checkboxHit()));
 
-        tableWidget_->setItem(newEntry.row, 0, &newEntry.tableItems[0]);
+        tableWidget_->setItem(newEntry.row, 0, newEntry.tableItems[0]);
         tableWidget_->setCellWidget(newEntry.row, 1, newEntry.checkBoxWidget);
-        tableWidget_->setItem(newEntry.row, 2, &newEntry.tableItems[1]);
-        tableWidget_->setItem(newEntry.row, 3, &newEntry.tableItems[2]);
-        tableWidget_->setItem(newEntry.row, 4, &newEntry.tableItems[3]);
-        tableWidget_->setItem(newEntry.row, 5, &newEntry.tableItems[4]);
-        tableWidget_->setItem(newEntry.row, 6, &newEntry.tableItems[5]);
+        tableWidget_->setItem(newEntry.row, 2, newEntry.tableItems[1]);
+        tableWidget_->setItem(newEntry.row, 3, newEntry.tableItems[2]);
+        tableWidget_->setItem(newEntry.row, 4, newEntry.tableItems[3]);
+        tableWidget_->setItem(newEntry.row, 5, newEntry.tableItems[4]);
+        tableWidget_->setItem(newEntry.row, 6, newEntry.tableItems[5]);
       } else {
         tableWidget_->item(newEntry.row, 0)->setText(QString::fromStdString(it->first));
         tableWidget_->item(newEntry.row, 2)->setText(QString::number(it->second.first[0]));

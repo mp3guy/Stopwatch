@@ -27,18 +27,12 @@ class StopwatchViewer : public QWidget {
    public:
     TableRow() {}
 
-    virtual ~TableRow() {
-      delete[] tableItems;
-      delete layoutCheckBox;
-      delete checkBoxWidget;
-    }
-
     inline bool isUninit() const {
-      return tableItems == 0 || checkItem == 0;
+      return tableItems.empty() || checkItem == nullptr;
     }
 
     int row = 0;
-    QTableWidgetItem* tableItems = nullptr;
+    std::vector<QTableWidgetItem*> tableItems;
     QCheckBox* checkItem = nullptr;
     QWidget* checkBoxWidget = nullptr;
     QHBoxLayout* layoutCheckBox = nullptr;
