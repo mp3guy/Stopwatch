@@ -8,6 +8,11 @@ ViewerWidget::ViewerWidget() {
   auto topWidget = new QWidget(this);
   auto topLayout = new QVBoxLayout(this);
   tableWidget_ = new QTableWidget(this);
+  QFont font("Monospace");
+  font.setStyleHint(QFont::TypeWriter);
+  tableWidget_->setFont(font);
+  flushButton = new QPushButton("Flush Cache");
+  topLayout->addWidget(flushButton);
   topLayout->addWidget(tableWidget_);
   topWidget->setLayout(topLayout);
 
@@ -15,11 +20,9 @@ ViewerWidget::ViewerWidget() {
   auto bottomLayout = new QVBoxLayout();
   auto vbox = new QVBoxLayout();
   auto hbox = new QHBoxLayout();
-  flushButton = new QPushButton("Flush Cache");
   plotChoice_ = new QComboBox(this);
   plotHolderWidget_ = new PlotHolderWidget(this);
 
-  hbox->addWidget(flushButton);
   hbox->addWidget(plotChoice_);
   vbox->addWidget(plotHolderWidget_);
 
@@ -56,6 +59,7 @@ ViewerWidget::ViewerWidget() {
   tableWidget_->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
   tableWidget_->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Stretch);
   tableWidget_->horizontalHeader()->setTextElideMode(Qt::TextElideMode::ElideMiddle);
+  tableWidget_->horizontalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
   columnTitles.removeFirst();
   columnTitles.removeFirst();
@@ -98,11 +102,12 @@ void ViewerWidget::updateTable(
         }
 
         newEntry.tableItems[0]->setText(QString::fromStdString(it->first));
-        newEntry.tableItems[1]->setText(QString::number(it->second.first[0]));
-        newEntry.tableItems[2]->setText(QString::number(it->second.first.getMinimum()));
-        newEntry.tableItems[3]->setText(QString::number(it->second.first.getMaximum()));
-        newEntry.tableItems[4]->setText(QString::number(it->second.first.getAverage()));
-        newEntry.tableItems[5]->setText(QString::number(it->second.first.getReciprocal() * 1000.0));
+        newEntry.tableItems[1]->setText(QString::number(it->second.first[0], 'f', 3));
+        newEntry.tableItems[2]->setText(QString::number(it->second.first.getMinimum(), 'f', 3));
+        newEntry.tableItems[3]->setText(QString::number(it->second.first.getMaximum(), 'f', 3));
+        newEntry.tableItems[4]->setText(QString::number(it->second.first.getAverage(), 'f', 3));
+        newEntry.tableItems[5]->setText(
+            QString::number(it->second.first.getReciprocal() * 1000.0, 'f', 3));
 
         newEntry.checkBoxWidget = new QWidget();
         newEntry.checkItem = new QCheckBox();
@@ -126,20 +131,20 @@ void ViewerWidget::updateTable(
         tableWidget_->setItem(newEntry.row, 6, newEntry.tableItems[5]);
       } else {
         tableWidget_->item(newEntry.row, 0)->setText(QString::fromStdString(it->first));
-        tableWidget_->item(newEntry.row, 2)->setText(QString::number(it->second.first[0]));
+        tableWidget_->item(newEntry.row, 2)->setText(QString::number(it->second.first[0], 'f', 3));
         tableWidget_->item(newEntry.row, 3)
-            ->setText(QString::number(it->second.first.getMinimum()));
+            ->setText(QString::number(it->second.first.getMinimum(), 'f', 3));
         tableWidget_->item(newEntry.row, 4)
-            ->setText(QString::number(it->second.first.getMaximum()));
+            ->setText(QString::number(it->second.first.getMaximum(), 'f', 3));
         tableWidget_->item(newEntry.row, 5)
-            ->setText(QString::number(it->second.first.getAverage()));
+            ->setText(QString::number(it->second.first.getAverage(), 'f', 3));
         tableWidget_->item(newEntry.row, 6)
-            ->setText(QString::number(it->second.first.getReciprocal() * 1000.0));
+            ->setText(QString::number(it->second.first.getReciprocal() * 1000.0, 'f', 3));
       }
 
       for (int i = 0; i < 7; i++) {
         if (i != 1) {
-          tableWidget_->item(newEntry.row, i)->setTextAlignment(Qt::AlignCenter);
+          tableWidget_->item(newEntry.row, i)->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
         }
       }
 

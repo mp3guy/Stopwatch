@@ -90,9 +90,15 @@ std::pair<bool, bool> TerminalViewer::renderUpdate(
     auto drawStringsInColumns = [&](const std::array<std::string, 6>& strings, const int row) {
       for (size_t i = 0; i < strings.size(); i++) {
         const int startingX = gapBetweenColumns * i + 2;
-        for (int c = 0; c < (int)strings[i].length() && c < gapBetweenColumns - 1; c++) {
+        const int endingX = (i == strings.size() - 1 ? cols_ : gapBetweenColumns * (i + 1) + 1);
+        const int leftPadding = endingX - startingX - (int)strings[i].length();
+        for (int c = 0; c < (int)strings[i].length() && c < gapBetweenColumns - 1 &&
+             leftPadding + startingX + c > 0;
+             c++) {
           window_->set_char(
-              startingX + c, row, Term::Private::utf8_to_utf32(std::string(1, strings[i][c]))[0]);
+              leftPadding + startingX + c,
+              row,
+              Term::Private::utf8_to_utf32(std::string(1, strings[i][c]))[0]);
         }
       }
     };
@@ -106,11 +112,12 @@ std::pair<bool, bool> TerminalViewer::renderUpdate(
       for (const auto& [name, measurements] : stopwatch) {
         auto& timing = timings.emplace_back();
         timing[0] = name;
-        timing[1] = QString::number(measurements.first[0]).toStdString();
-        timing[2] = QString::number(measurements.first.getMinimum()).toStdString();
-        timing[3] = QString::number(measurements.first.getMaximum()).toStdString();
-        timing[4] = QString::number(measurements.first.getAverage()).toStdString();
-        timing[5] = QString::number(measurements.first.getReciprocal() * 1000.0).toStdString();
+        timing[1] = QString::number(measurements.first[0], 'f', 3).toStdString();
+        timing[2] = QString::number(measurements.first.getMinimum(), 'f', 3).toStdString();
+        timing[3] = QString::number(measurements.first.getMaximum(), 'f', 3).toStdString();
+        timing[4] = QString::number(measurements.first.getAverage(), 'f', 3).toStdString();
+        timing[5] =
+            QString::number(measurements.first.getReciprocal() * 1000.0, 'f', 3).toStdString();
       }
     }
 
