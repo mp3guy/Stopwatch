@@ -91,14 +91,14 @@ std::pair<bool, bool> TerminalViewer::renderUpdate(
       for (size_t i = 0; i < strings.size(); i++) {
         const int startingX = gapBetweenColumns * i + 2;
         const int endingX = (i == strings.size() - 1 ? cols_ : gapBetweenColumns * (i + 1) + 1);
-        const int leftPadding = endingX - startingX - (int)strings[i].length();
-        for (int c = 0; c < (int)strings[i].length() && c < gapBetweenColumns - 1 &&
-             leftPadding + startingX + c > 0;
-             c++) {
-          window_->set_char(
-              leftPadding + startingX + c,
-              row,
-              Term::Private::utf8_to_utf32(std::string(1, strings[i][c]))[0]);
+        const int leftPadding = std::max(0, endingX - startingX - (int)strings[i].length());
+        for (int c = 0; c < (int)strings[i].length() && c < gapBetweenColumns - 1; c++) {
+          if (leftPadding + startingX + c > 0) {
+            window_->set_char(
+                leftPadding + startingX + c,
+                row,
+                Term::Private::utf8_to_utf32(std::string(1, strings[i][c]))[0]);
+          }
         }
       }
     };
