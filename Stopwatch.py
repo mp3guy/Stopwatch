@@ -1,6 +1,42 @@
 import time
 import socket
 import struct
+from typing import Optional
+from functools import partial
+
+
+def stopwatch(name: Optional[str] = None):
+    """
+    Decorator to add stopwatch tick/tock with automatic naming
+    :param name: Optional name to be passed to the Stopwatch.tick call.
+                 If empty, the functions __qualname__ will automatically be used
+
+
+     Example:
+
+     @stopwatch()
+     def function_to_time():
+        ...
+
+     @stopwatch("custom_name_passed_to_tick_tock")
+     def other_function_to_time():
+        ...
+    """
+
+    def stopwatch_impl(func, _name_):
+        if _name_ is None:
+            _name_ = func.__qualname__
+
+        def wrapper(*args, **kwargs):
+            Stopwatch.tick(_name_)
+            result = func(*args, **kwargs)
+            Stopwatch.tock(_name_)
+            return result
+
+        return wrapper
+
+    return partial(stopwatch_impl, _name_=name)
+
 
 class Stopwatch:
     SEND_INTERVAL_MS = 10000
@@ -67,15 +103,15 @@ class Stopwatch:
         packet_size_bytes = struct.calcsize("=Iq")  # int32_t + uint64_t
         for name in Stopwatch.timings_ms.keys():
             packet_size_bytes += (
-                struct.calcsize("=B") + len(name) + 1 + struct.calcsize("=f")
+                    struct.calcsize("=B") + len(name) + 1 + struct.calcsize("=f")
             )
         for name in Stopwatch.ticks_us.keys():
             packet_size_bytes += (
-                struct.calcsize("=B") + len(name) + 1 + struct.calcsize("=Q")
+                    struct.calcsize("=B") + len(name) + 1 + struct.calcsize("=Q")
             )
         for name in Stopwatch.tocks_us.keys():
             packet_size_bytes += (
-                struct.calcsize("=B") + len(name) + 1 + struct.calcsize("=Q")
+                    struct.calcsize("=B") + len(name) + 1 + struct.calcsize("=Q")
             )
 
         data = bytearray(packet_size_bytes)
