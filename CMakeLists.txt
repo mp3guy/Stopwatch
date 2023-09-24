@@ -35,7 +35,7 @@ target_link_libraries(StopwatchViewer Qt6::Widgets Qt6::Network ${CPP_TERMINAL_L
 
 target_compile_options(StopwatchViewer PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-          -Wall -std=c++17>
+          -Wall -std=c++17 -g>
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
 
