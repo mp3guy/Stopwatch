@@ -52,3 +52,17 @@ Uses some code from the B-Human code release (http://www.b-human.de/).
 <p align="center">
   <img src="https://github.com/mp3guy/mp3guy.github.io/raw/master/img/StopwatchCLI.png" alt="StopwatchCLI"/>
 </p>
+
+Install
+=======
+```
+git clone  https://github.com/mp3guy/Stopwatch.git
+cd Stopwatch
+git submodule init && git submodule update
+cd third-party/cpp-terminal
+mkdir build && cd build
+cmake .. && make -j 
+cd ../../
+mkdir build && cd build
+cmake .. && make -j
+```
