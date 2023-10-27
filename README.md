@@ -66,3 +66,13 @@ cd ../../
 mkdir build && cd build
 cmake .. && make -j
 ```
+Running Stopwatch in terminal mode without GUI
+===============================================
+```
+./Stopwatch -c
+```
+With key bindings: 
+- k or up arrow: scroll up
+- j or down arrow: scroll down
+- c: flush the cache
+- q or Esc or Ctrl+c: quit
