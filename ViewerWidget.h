@@ -6,6 +6,7 @@
 #include <QCheckBox>
 #include <QHeaderView>
 #include <QKeyEvent>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QSplitter>
 #include <QTableWidget>
@@ -47,6 +48,9 @@ class ViewerWidget : public QWidget {
           signatureToNameToDurations,
       const std::unordered_set<std::string>& enabledBeforeReset,
       int& lastRow);
+
+ private:
+  QLineEdit* filterText_;
 
  private slots:
   void checkboxHit();
