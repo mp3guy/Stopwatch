@@ -12,7 +12,16 @@ ViewerWidget::ViewerWidget() {
   font.setStyleHint(QFont::TypeWriter);
   tableWidget_->setFont(font);
   flushButton = new QPushButton("Flush Cache");
-  topLayout->addWidget(flushButton);
+  auto plotAll = new QPushButton("Plot All");
+  auto plotNone = new QPushButton("Plot None");
+  filterText_ = new QLineEdit("");
+  filterText_->setPlaceholderText("Filter Timing Items");
+  auto topTopLayout = new QHBoxLayout(this);
+  topTopLayout->addWidget(flushButton);
+  topTopLayout->addWidget(plotAll);
+  topTopLayout->addWidget(plotNone);
+  topLayout->addLayout(topTopLayout);
+  topLayout->addWidget(filterText_);
   topLayout->addWidget(tableWidget_);
   topWidget->setLayout(topLayout);
 
@@ -65,6 +74,30 @@ ViewerWidget::ViewerWidget() {
   columnTitles.removeFirst();
 
   plotChoice_->addItems(columnTitles);
+
+  // filter table view with text filter
+  connect(filterText_, &QLineEdit::textChanged, this, [&](auto& text) {
+    for (int i = 0; i < tableWidget_->rowCount(); i++) {
+      if (tableWidget_->model()->index(i, 0).data().toString().contains(filterText_->text())) {
+        tableWidget_->showRow(i);
+      } else {
+        tableWidget_->hideRow(i);
+      }
+    }
+  });
+
+  // enabled/disable all plots that match the text filter
+  auto setAllChecked = [&](const bool checked) {
+    for (int i = 0; i < tableWidget_->rowCount(); i++) {
+      QCheckBox* cellCheckBox = qobject_cast<QCheckBox*>(
+          tableWidget_->cellWidget(i, 1)->findChild<QHBoxLayout*>()->itemAt(0)->widget());
+      if (tableWidget_->model()->index(i, 0).data().toString().contains(filterText_->text())) {
+        cellCheckBox->setChecked(checked);
+      }
+    }
+  };
+  connect(plotAll, &QPushButton::clicked, this, [=](bool checked) { setAllChecked(true); });
+  connect(plotNone, &QPushButton::clicked, this, [=](bool checked) { setAllChecked(false); });
 }
 
 void ViewerWidget::keyPressEvent(QKeyEvent* event) {
@@ -160,7 +193,6 @@ void ViewerWidget::updateTable(
       }
     }
   }
-
   plotHolderWidget_->update(plotVals);
 }
 
