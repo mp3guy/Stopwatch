@@ -51,15 +51,16 @@ ViewerWidget::ViewerWidget() {
   tableWidget_->setHorizontalHeaderLabels(columnTitles);
   tableWidget_->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-  tableWidget_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+  tableWidget_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
   tableWidget_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
   tableWidget_->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
   tableWidget_->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
   tableWidget_->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
   tableWidget_->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
   tableWidget_->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Stretch);
-  tableWidget_->horizontalHeader()->setTextElideMode(Qt::TextElideMode::ElideMiddle);
+  tableWidget_->horizontalHeader()->setTextElideMode(Qt::TextElideMode::ElideRight);
   tableWidget_->horizontalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  tableWidget_->setTextElideMode(Qt::TextElideMode::ElideLeft);
 
   columnTitles.removeFirst();
   columnTitles.removeFirst();
