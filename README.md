@@ -62,7 +62,7 @@ git submodule init && git submodule update
 cd third-party/cpp-terminal
 mkdir build && cd build
 cmake .. && make -j 
-cd ../../
+cd ../../..
 mkdir build && cd build
 cmake .. && make -j
 ```

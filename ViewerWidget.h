@@ -6,7 +6,9 @@
 #include <QCheckBox>
 #include <QHeaderView>
 #include <QKeyEvent>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
 #include <QSplitter>
 #include <QTableWidget>
 #include <QUdpSocket>
@@ -19,14 +21,11 @@ class TableRow {
   TableRow() {}
 
   inline bool isUninit() const {
-    return tableItems.empty() || checkItem == nullptr;
+    return tableItems.empty();
   }
 
   int row = 0;
   std::vector<QTableWidgetItem*> tableItems;
-  QCheckBox* checkItem = nullptr;
-  QWidget* checkBoxWidget = nullptr;
-  QHBoxLayout* layoutCheckBox = nullptr;
 };
 
 class ViewerWidget : public QWidget {
@@ -38,7 +37,10 @@ class ViewerWidget : public QWidget {
   QPushButton* flushButton = nullptr;
   PlotHolderWidget* plotHolderWidget_ = nullptr;
   QTableWidget* tableWidget_ = nullptr;
+  QSortFilterProxyModel* proxy_ = nullptr;
+  QTableView* tableView_ = nullptr;
   QComboBox* plotChoice_ = nullptr;
+  QLineEdit* filterText_;
 
   void keyPressEvent(QKeyEvent* event) override;
 
@@ -47,7 +49,4 @@ class ViewerWidget : public QWidget {
           signatureToNameToDurations,
       const std::unordered_set<std::string>& enabledBeforeReset,
       int& lastRow);
-
- private slots:
-  void checkboxHit();
 };
