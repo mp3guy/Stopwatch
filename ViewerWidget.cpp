@@ -21,7 +21,7 @@ ViewerWidget::ViewerWidget() {
   auto plotRemoveAll = new QPushButton("Remove All");
   filterText_ = new QLineEdit("");
   filterText_->setPlaceholderText("Filter Timing Items");
-  auto topTopLayout = new QHBoxLayout(this);
+  auto topTopLayout = new QHBoxLayout();
   topTopLayout->addWidget(flushButton);
   topTopLayout->addWidget(plotAll);
   topTopLayout->addWidget(plotFiltered);
@@ -114,8 +114,10 @@ ViewerWidget::ViewerWidget() {
     }
   };
   connect(plotAll, &QPushButton::clicked, this, [=](bool checked) { setAllChecked(true, false); });
+
   connect(
       plotFiltered, &QPushButton::clicked, this, [=](bool checked) { setAllChecked(true, true); });
+
   connect(plotRemoveFiltered, &QPushButton::clicked, this, [=](bool checked) {
     setAllChecked(false, true);
   });
@@ -160,11 +162,19 @@ void ViewerWidget::updateTable(
 
         newEntry.tableItems[0]->setText(QString::fromStdString(it->first));
         newEntry.tableItems[1]->setCheckState(Qt::Unchecked);
-        newEntry.tableItems[2]->setData(Qt::DisplayRole, QString::number(it->second.first[0], 'f', 3).toFloat());
-        newEntry.tableItems[3]->setData(Qt::DisplayRole, QString::number(it->second.first.getMinimum(), 'f', 3).toFloat());
-        newEntry.tableItems[4]->setData(Qt::DisplayRole, QString::number(it->second.first.getMaximum(), 'f', 3).toFloat());
-        newEntry.tableItems[5]->setData(Qt::DisplayRole, QString::number(it->second.first.getAverage(), 'f', 3).toFloat());
-        newEntry.tableItems[6]->setData(Qt::DisplayRole,
+        newEntry.tableItems[2]->setData(
+            Qt::DisplayRole, QString::number(it->second.first[0], 'f', 3).toFloat());
+
+        newEntry.tableItems[3]->setData(
+            Qt::DisplayRole, QString::number(it->second.first.getMinimum(), 'f', 3).toFloat());
+
+        newEntry.tableItems[4]->setData(
+            Qt::DisplayRole, QString::number(it->second.first.getMaximum(), 'f', 3).toFloat());
+        newEntry.tableItems[5]->setData(
+            Qt::DisplayRole, QString::number(it->second.first.getAverage(), 'f', 3).toFloat());
+        newEntry.tableItems[6]->setData(
+            Qt::DisplayRole,
+
             QString::number(it->second.first.getReciprocal() * 1000.0, 'f', 3).toFloat());
 
         if (enabledBeforeReset.count(it->first)) {
@@ -188,11 +198,18 @@ void ViewerWidget::updateTable(
 
       } else {
         newEntry.tableItems[0]->setText(QString::fromStdString(it->first));
-        newEntry.tableItems[2]->setData(Qt::DisplayRole, QString::number(it->second.first[0], 'f', 3).toFloat());
-        newEntry.tableItems[3]->setData(Qt::DisplayRole, QString::number(it->second.first.getMinimum(), 'f', 3).toFloat());
-        newEntry.tableItems[4]->setData(Qt::DisplayRole, QString::number(it->second.first.getMaximum(), 'f', 3).toFloat());
-        newEntry.tableItems[5]->setData(Qt::DisplayRole, QString::number(it->second.first.getAverage(), 'f', 3).toFloat());
-        newEntry.tableItems[6]->setData(Qt::DisplayRole,
+        newEntry.tableItems[2]->setData(
+            Qt::DisplayRole, QString::number(it->second.first[0], 'f', 3).toFloat());
+
+        newEntry.tableItems[3]->setData(
+            Qt::DisplayRole, QString::number(it->second.first.getMinimum(), 'f', 3).toFloat());
+
+        newEntry.tableItems[4]->setData(
+            Qt::DisplayRole, QString::number(it->second.first.getMaximum(), 'f', 3).toFloat());
+        newEntry.tableItems[5]->setData(
+            Qt::DisplayRole, QString::number(it->second.first.getAverage(), 'f', 3).toFloat());
+        newEntry.tableItems[6]->setData(
+            Qt::DisplayRole,
             QString::number(it->second.first.getReciprocal() * 1000.0, 'f', 3).toFloat());
       }
 
