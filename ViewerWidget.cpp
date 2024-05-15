@@ -8,12 +8,30 @@ ViewerWidget::ViewerWidget() {
   auto topWidget = new QWidget(this);
   auto topLayout = new QVBoxLayout(this);
   tableWidget_ = new QTableWidget(this);
+  tableWidget_->setVisible(false);
+  tableView_ = new QTableView(this);
   QFont font("Monospace");
   font.setStyleHint(QFont::TypeWriter);
-  tableWidget_->setFont(font);
+  tableView_->setFont(font);
   flushButton = new QPushButton("Flush Cache");
-  topLayout->addWidget(flushButton);
+
+  auto plotAll = new QPushButton("Plot All");
+  auto plotFiltered = new QPushButton("Plot Filtered");
+  auto plotRemoveFiltered = new QPushButton("Remove Filtered");
+  auto plotRemoveAll = new QPushButton("Remove All");
+  filterText_ = new QLineEdit("");
+  filterText_->setPlaceholderText("Filter Timing Items");
+  auto topTopLayout = new QHBoxLayout(this);
+  topTopLayout->addWidget(flushButton);
+  topTopLayout->addWidget(plotAll);
+  topTopLayout->addWidget(plotFiltered);
+  topTopLayout->addWidget(plotRemoveFiltered);
+  topTopLayout->addWidget(plotRemoveAll);
+  topLayout->addLayout(topTopLayout);
+  topLayout->addWidget(filterText_);
+
   topLayout->addWidget(tableWidget_);
+  topLayout->addWidget(tableView_);
   topWidget->setLayout(topLayout);
 
   auto bottomWidget = new QWidget(this);
@@ -41,31 +59,69 @@ ViewerWidget::ViewerWidget() {
   QStringList columnTitles;
   columnTitles << "Item"
                << "Plot"
-               << "Last (ms)"
-               << "Min (ms)"
-               << "Max (ms)"
-               << "Avg (ms)"
-               << "Hz";
+               << "  Last (ms)"
+               << "   Min (ms)"
+               << "   Max (ms)"
+               << "   Avg (ms)"
+               << "       Hz";
 
   tableWidget_->setColumnCount(columnTitles.length());
   tableWidget_->setHorizontalHeaderLabels(columnTitles);
-  tableWidget_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-  tableWidget_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
-  tableWidget_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-  tableWidget_->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-  tableWidget_->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-  tableWidget_->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
-  tableWidget_->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
-  tableWidget_->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Stretch);
-  tableWidget_->horizontalHeader()->setTextElideMode(Qt::TextElideMode::ElideRight);
-  tableWidget_->horizontalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
-  tableWidget_->setTextElideMode(Qt::TextElideMode::ElideLeft);
+  tableView_->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
   columnTitles.removeFirst();
   columnTitles.removeFirst();
 
   plotChoice_->addItems(columnTitles);
+
+  proxy_ = new QSortFilterProxyModel(this);
+  proxy_->setSourceModel(tableWidget_->model());
+  proxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
+  proxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+  tableView_->setModel(proxy_);
+  tableView_->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
+  tableView_->setSortingEnabled(true);
+
+  tableView_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  tableView_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  tableView_->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+  tableView_->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+  tableView_->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
+  tableView_->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
+  tableView_->horizontalHeader()->setSectionResizeMode(6, QHeaderView::ResizeToContents);
+  tableView_->horizontalHeader()->setTextElideMode(Qt::TextElideMode::ElideRight);
+  tableView_->horizontalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  tableView_->setTextElideMode(Qt::TextElideMode::ElideLeft);
+  tableView_->verticalHeader()->setVisible(false);
+
+  connect(filterText_, &QLineEdit::textChanged, this, [&](auto& text) {
+    proxy_->setFilterFixedString(filterText_->text());
+  });
+
+  // enabled/disable all plots that match the text filter
+  const auto setAllChecked = [&](const bool checked, const bool matchFilter) {
+    const auto qtChecked = checked ? Qt::Checked : Qt::Unchecked;
+    if (!matchFilter) {
+      for (int i = 0; i < tableWidget_->rowCount(); i++) {
+        tableWidget_->item(i, 1)->setCheckState(qtChecked);
+      }
+    } else {
+      for (int i = 0; i < proxy_->rowCount(); i++) {
+        auto item = proxy_->mapToSource(proxy_->index(i, 0));
+        tableWidget_->item(item.row(), 1)->setCheckState(qtChecked);
+      }
+    }
+  };
+  connect(plotAll, &QPushButton::clicked, this, [=](bool checked) { setAllChecked(true, false); });
+  connect(
+      plotFiltered, &QPushButton::clicked, this, [=](bool checked) { setAllChecked(true, true); });
+  connect(plotRemoveFiltered, &QPushButton::clicked, this, [=](bool checked) {
+    setAllChecked(false, true);
+  });
+  connect(plotRemoveAll, &QPushButton::clicked, this, [=](bool checked) {
+    setAllChecked(false, false);
+  });
 }
 
 void ViewerWidget::keyPressEvent(QKeyEvent* event) {
@@ -98,63 +154,49 @@ void ViewerWidget::updateTable(
       if (newEntry.isUninit()) {
         newEntry.row = lastRow++;
 
-        while ((int)newEntry.tableItems.size() < tableWidget_->columnCount() - 1) {
+        while ((int)newEntry.tableItems.size() < tableWidget_->columnCount()) {
           newEntry.tableItems.emplace_back(new QTableWidgetItem());
         }
 
         newEntry.tableItems[0]->setText(QString::fromStdString(it->first));
-        newEntry.tableItems[1]->setText(QString::number(it->second.first[0], 'f', 3));
-        newEntry.tableItems[2]->setText(QString::number(it->second.first.getMinimum(), 'f', 3));
-        newEntry.tableItems[3]->setText(QString::number(it->second.first.getMaximum(), 'f', 3));
-        newEntry.tableItems[4]->setText(QString::number(it->second.first.getAverage(), 'f', 3));
-        newEntry.tableItems[5]->setText(
-            QString::number(it->second.first.getReciprocal() * 1000.0, 'f', 3));
-
-        newEntry.checkBoxWidget = new QWidget();
-        newEntry.checkItem = new QCheckBox();
-        newEntry.layoutCheckBox = new QHBoxLayout(newEntry.checkBoxWidget);
-        newEntry.layoutCheckBox->addWidget(newEntry.checkItem);
-        newEntry.layoutCheckBox->setAlignment(Qt::AlignCenter);
-        newEntry.layoutCheckBox->setContentsMargins(0, 0, 0, 0);
+        newEntry.tableItems[1]->setCheckState(Qt::Unchecked);
+        newEntry.tableItems[2]->setData(Qt::DisplayRole, QString::number(it->second.first[0], 'f', 3).toFloat());
+        newEntry.tableItems[3]->setData(Qt::DisplayRole, QString::number(it->second.first.getMinimum(), 'f', 3).toFloat());
+        newEntry.tableItems[4]->setData(Qt::DisplayRole, QString::number(it->second.first.getMaximum(), 'f', 3).toFloat());
+        newEntry.tableItems[5]->setData(Qt::DisplayRole, QString::number(it->second.first.getAverage(), 'f', 3).toFloat());
+        newEntry.tableItems[6]->setData(Qt::DisplayRole,
+            QString::number(it->second.first.getReciprocal() * 1000.0, 'f', 3).toFloat());
 
         if (enabledBeforeReset.count(it->first)) {
-          newEntry.checkItem->setChecked(true);
+          newEntry.tableItems[1]->setCheckState(Qt::Checked);
         }
-
-        connect(newEntry.checkItem, SIGNAL(stateChanged(int)), this, SLOT(checkboxHit()));
 
         tableWidget_->setItem(newEntry.row, 0, newEntry.tableItems[0]);
-        tableWidget_->setCellWidget(newEntry.row, 1, newEntry.checkBoxWidget);
-        tableWidget_->setItem(newEntry.row, 2, newEntry.tableItems[1]);
-        tableWidget_->setItem(newEntry.row, 3, newEntry.tableItems[2]);
-        tableWidget_->setItem(newEntry.row, 4, newEntry.tableItems[3]);
-        tableWidget_->setItem(newEntry.row, 5, newEntry.tableItems[4]);
-        tableWidget_->setItem(newEntry.row, 6, newEntry.tableItems[5]);
-      } else {
-        tableWidget_->item(newEntry.row, 0)->setText(QString::fromStdString(it->first));
-        tableWidget_->item(newEntry.row, 2)->setText(QString::number(it->second.first[0], 'f', 3));
-        tableWidget_->item(newEntry.row, 3)
-            ->setText(QString::number(it->second.first.getMinimum(), 'f', 3));
-        tableWidget_->item(newEntry.row, 4)
-            ->setText(QString::number(it->second.first.getMaximum(), 'f', 3));
-        tableWidget_->item(newEntry.row, 5)
-            ->setText(QString::number(it->second.first.getAverage(), 'f', 3));
-        tableWidget_->item(newEntry.row, 6)
-            ->setText(QString::number(it->second.first.getReciprocal() * 1000.0, 'f', 3));
-      }
+        tableWidget_->setItem(newEntry.row, 1, newEntry.tableItems[1]);
+        tableWidget_->setItem(newEntry.row, 2, newEntry.tableItems[2]);
+        tableWidget_->setItem(newEntry.row, 3, newEntry.tableItems[3]);
+        tableWidget_->setItem(newEntry.row, 4, newEntry.tableItems[4]);
+        tableWidget_->setItem(newEntry.row, 5, newEntry.tableItems[5]);
+        tableWidget_->setItem(newEntry.row, 6, newEntry.tableItems[6]);
 
-      for (int i = 0; i < 7; i++) {
-        if (i != 1) {
-          tableWidget_->item(newEntry.row, i)->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        for (int i = 0; i < 7; i++) {
+          if (i != 1) {
+            tableWidget_->item(newEntry.row, i)
+                ->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+          }
         }
+
+      } else {
+        newEntry.tableItems[0]->setText(QString::fromStdString(it->first));
+        newEntry.tableItems[2]->setData(Qt::DisplayRole, QString::number(it->second.first[0], 'f', 3).toFloat());
+        newEntry.tableItems[3]->setData(Qt::DisplayRole, QString::number(it->second.first.getMinimum(), 'f', 3).toFloat());
+        newEntry.tableItems[4]->setData(Qt::DisplayRole, QString::number(it->second.first.getMaximum(), 'f', 3).toFloat());
+        newEntry.tableItems[5]->setData(Qt::DisplayRole, QString::number(it->second.first.getAverage(), 'f', 3).toFloat());
+        newEntry.tableItems[6]->setData(Qt::DisplayRole,
+            QString::number(it->second.first.getReciprocal() * 1000.0, 'f', 3).toFloat());
       }
 
-      QCheckBox* cellCheckBox = qobject_cast<QCheckBox*>(tableWidget_->cellWidget(newEntry.row, 1)
-                                                             ->findChild<QHBoxLayout*>()
-                                                             ->itemAt(0)
-                                                             ->widget());
-
-      if (cellCheckBox->isChecked()) {
+      if (newEntry.tableItems[1]->checkState() == Qt::Checked) {
         plotVals.emplace_back(
             it->first,
             tableWidget_->item(newEntry.row, plotChoice_->currentIndex() + 2)->text().toDouble());
@@ -163,24 +205,4 @@ void ViewerWidget::updateTable(
   }
 
   plotHolderWidget_->update(plotVals);
-}
-
-void ViewerWidget::checkboxHit() {
-  int numChecked = 0;
-
-  for (int i = 0; i < tableWidget_->rowCount(); i++) {
-    QCheckBox* cellCheckBox = qobject_cast<QCheckBox*>(
-        tableWidget_->cellWidget(i, 1)->findChild<QHBoxLayout*>()->itemAt(0)->widget());
-
-    if (cellCheckBox->isChecked()) {
-      numChecked++;
-    }
-  }
-
-  for (int j = 0; j < tableWidget_->rowCount(); j++) {
-    QCheckBox* cellCheckBox = qobject_cast<QCheckBox*>(
-        tableWidget_->cellWidget(j, 1)->findChild<QHBoxLayout*>()->itemAt(0)->widget());
-
-    cellCheckBox->setCheckable(true);
-  }
 }
