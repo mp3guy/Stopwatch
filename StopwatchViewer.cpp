@@ -79,7 +79,8 @@ void StopwatchViewer::flushCache() {
 
   for (auto& cacheIt : signatureToNameToDurations_) {
     for (auto& stopIt : cacheIt.second) {
-      if (stopIt.second.second.tableItems[1]->checkState() == Qt::Checked) {
+      if (!stopIt.second.second.isUninit() &&
+          stopIt.second.second.tableItems[1]->checkState() == Qt::Checked) {
         enabledBeforeReset_.insert(stopIt.first);
       }
     }
